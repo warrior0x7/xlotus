@@ -1,0 +1,86 @@
+#!/bin/bash
+
+XLOTUS_CFG=~/.config/xlotus
+XLOTUS_BIN=~/.local/bin
+XLOTUS_ALL=( "xl-themer" "xl-rgb" )
+
+function stxt () { 
+    case $1 in
+        h)
+            printf "\n\033[0;32m[OK]\033[0m %s\n\n" "$2"
+            ;;
+        *)
+            printf "\033[0;32m[OK]\033[0m %s\n" "$1"
+            ;;
+    esac
+}
+function etxt () { printf "\033[0;31m%s\033[0m\n" "$1"; }
+
+function chkmk () {
+    case $1 in
+        d) [ ! -d $2 ] && mkdir -p $2 ;;
+        f) 
+            if [ $# -gt 2 ]; then
+                [ ! -f $2 ] && ${@:3}
+            else
+                [ ! -f $2 ] && mkdir -p $2
+            fi
+            ;;
+    esac
+}
+
+function add () {
+    if [ ! -f bin/$1 ] && [ ! -f cfg/$1 ]; then
+        etxt "[ERR] '$1' does not exist in this directory"
+        has_err=1
+    else
+        if [ "$1" == "xlfns" ]; then
+            cp cfg/$1 $XLOTUS_CFG/$1
+        else
+            cp bin/$1 $XLOTUS_BIN/$1
+        fi
+
+        stxt "Installed '$1'"
+    fi
+}
+
+function success () {
+    if [ "$has_err" != 1 ]; then
+        printf "\n\033[0;32m%s\033[0m\n" "Installation was a success!"
+        printf "\nDon't forget to add \033[0;32m%s\033[0m to your PATH variable\n" "\$HOME/.local/bin"
+    fi
+}
+
+chkmk d $XLOTUS_CFG
+chkmk d $XLOTUS_BIN
+
+[ -f cfg/xlfns ] && chkmk f $XLOTUS_CFG add xlfns
+
+if [ -z "$1" ]; then 
+    stxt h "No arguments provided, so I'll be using 'all' instead"
+    opt="all" 
+else
+    opt="$1"
+fi
+
+case $opt in
+    all)
+        for script in ${XLOTUS_ALL[@]}; do
+            add $script
+        done
+        success
+        ;;
+    select)
+        choices=(`printf "%s\n" ${XLOTUS_ALL[@]} |\
+            fzf --multi --header="Install > " --bind 'tab:toggle+up,shift-tab:toggle+down,change:first' --tiebreak=begin`)
+        if [ -n "$choices" ]; then
+            for choice in ${choices[@]}; do
+                add $choice
+            done
+            success
+        fi
+        ;;
+    *)
+        etxt "Invalid argument: $1"
+        ;;
+esac
