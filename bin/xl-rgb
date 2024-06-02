@@ -4,6 +4,8 @@ source ~/.local/lib/xlotus/xlfns
 
 function printHelp () {
     cat <<-EOF
+Name: xl-rgb - A tiny color converter written in bash (part of xlotus utilities)
+
 Usage: xl-rgb <Mode> <Option>
 
 Options: One of the following options

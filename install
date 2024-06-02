@@ -19,7 +19,6 @@ XLOTUS_LIB=~/.local/lib/xlotus
 function scriptInfo () {
     cat <<-EOF
 xl-rgb;;;Color conversion utility
-xl-themer;;;Find nerd icons, gtk theme icons, fonts and colors
 EOF
 }
 
