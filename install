@@ -1,85 +1,162 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 XLOTUS_CFG=~/.config/xlotus
 XLOTUS_BIN=~/.local/bin
+XLOTUS_LIB=~/.local/lib/xlotus
 XLOTUS_ALL=( "xl-themer" "xl-rgb" )
 
-function stxt () { 
-    case $1 in
-        h)
-            printf "\n\033[0;32m[OK]\033[0m %s\n\n" "$2"
-            ;;
-        *)
-            printf "\033[0;32m[OK]\033[0m %s\n" "$1"
-            ;;
-    esac
+function scriptInfo () {
+    cat <<-EOF
+xl-rgb;;;Color conversion utility
+xl-themer;;;Find nerd icons, gtk theme icons, fonts and colors
+EOF
 }
-function etxt () { printf "\033[0;31m%s\033[0m\n" "$1"; }
 
-function chkmk () {
+function stxt () { echo -e "\033[0;32m[OK]\033[0m $1" ;}
+function etxt () { echo -e "\033[0;31m[ERR] $1\033[0m" ;}
+function rtxt () { echo -e "\033[0;34m[REM] $1\033[0m" ;}
+
+function printHelp () {
+    cat <<-EOF
+Usage: install <Option>
+
+Option: Can be one of the following:
+
+    -h , --help:
+        Shows this help page.
+    
+    -s , --select:
+        Select scripts to install.
+
+    -a , --all:
+        Install all scripts.
+
+    -d , --dev:
+        Make symbolic links instead of installing scripts.
+        This is useful for development purposes.
+EOF
+}
+
+function chkmk () { 
+    if [ ! -d $2 ]; then 
+        mkdir -p $2
+        stxt "Created directory: $2" 
+    fi
+}
+
+function add () { cp $@ ;}
+function link () { ln -s `pwd`/$@ ;}
+
+function main () {
+    cmd="$1"
+    shift
     case $1 in
-        d) [ ! -d $2 ] && mkdir -p $2 ;;
-        f) 
-            if [ $# -gt 2 ]; then
-                [ ! -f $2 ] && ${@:3}
+        lib|bin)
+            case $1 in
+                lib) installDir=$XLOTUS_LIB ;;
+                bin) installDir=$XLOTUS_BIN ;;
+            esac
+
+            if [ ! -f $1/$2 ]; then
+                etxt "'$1/$2' does not exist in this repo"
+                has_err=1
             else
-                [ ! -f $2 ] && mkdir -p $2
+                if [ ! -f $installDir/$2 ]; then
+                    $cmd $1/$2 $installDir/$2
+                    if [ "$cmd" == "add" ]; then
+                        stxt "Installed '$2' ($1)"
+                    elif [ "$cmd" == "link" ]; then
+                        stxt "Linked '$2' ($1)"
+                    fi
+                else
+                    if [ "$cmd" == "add" ]; then
+                        fileType=`file -bi $installDir/$2 | awk -F ';' '{print $1}'`
+
+                        if [ "$fileType" == "inode/symlink" ]; then
+                            rm $installDir/$2
+                            rtxt "'$2' ($1) removed old symlink"
+                            $cmd $1/$2 $installDir/$2
+                            stxt "Installed '$2' ($1)"
+                        else
+                            stxt "'$2' ($1) already exists ... no need to reinstall"
+                        fi
+                    elif [ "$cmd" == "link" ]; then
+                        fileType=`file -bi $installDir/$2 | awk -F ';' '{print $1}'`
+
+                        if [ "$fileType" == "text/x-shellscript" ]; then
+                            rm $installDir/$2
+                            rtxt "'$2' ($1) removed old $1"
+                            $cmd $1/$2 $installDir/$2
+                            stxt "Linked '$2' ($1)"
+                        else
+                            stxt "'$2' ($1) already linked"
+                        fi
+                    fi
+                fi
             fi
             ;;
     esac
 }
 
-function add () {
-    if [ ! -f bin/$1 ] && [ ! -f cfg/$1 ]; then
-        etxt "[ERR] '$1' does not exist in this directory"
-        has_err=1
-    else
-        if [ "$1" == "xlfns" ]; then
-            cp cfg/$1 $XLOTUS_CFG/$1
-        else
-            cp bin/$1 $XLOTUS_BIN/$1
-        fi
-
-        stxt "Installed '$1'"
-    fi
-}
-
 function success () {
-    if [ "$has_err" != 1 ]; then
-        printf "\n\033[0;32m%s\033[0m\n" "Installation was a success!"
-        printf "\nDon't forget to add \033[0;32m%s\033[0m to your PATH variable\n" "\$HOME/.local/bin"
+    if [ -n "$has_err" ]; then
+        if [ $has_err -ne 1 ]; then
+            printf "\n\033[0;32m%s\033[0m\n" "Installation was a success!"
+            printf "\nDon't forget to add \033[0;32m%s\033[0m to your PATH variable\n" "\$HOME/.local/bin"
+        fi
     fi
 }
 
 chkmk d $XLOTUS_CFG
 chkmk d $XLOTUS_BIN
+chkmk d $XLOTUS_LIB
 
-[ -f cfg/xlfns ] && chkmk f $XLOTUS_CFG add xlfns
-
-if [ -z "$1" ]; then 
-    stxt h "No arguments provided, so I'll be using 'all' instead"
-    opt="all" 
+if [ -z "$1" ]; then
+    stxt "No arguments provided, so I'll be using '--all'"
+    opt="--all"
 else
     opt="$1"
 fi
 
 case $opt in
-    all)
+    -a|--all)
+        main add lib xlfns
         for script in ${XLOTUS_ALL[@]}; do
-            add $script
+            main add bin $script
         done
         success
         ;;
-    select)
-        choices=(`printf "%s\n" ${XLOTUS_ALL[@]} |\
-            fzf --multi --header="Install > " --bind 'tab:toggle+up,shift-tab:toggle+down,change:first' --tiebreak=begin`)
+
+    -s|--select)
+        choices=("`scriptInfo |\
+            awk -F ';;;' '{ printf "%2s %-20s %s\n", " ", $1, $2}' |\
+            fzf --multi \
+                --header="Install > " \
+                --bind 'tab:toggle+up,shift-tab:toggle+down,change:first' \
+                --tiebreak=begin |\
+            awk '{ print $1 }'`")
+
         if [ -n "$choices" ]; then
+            main add lib xlfns
             for choice in ${choices[@]}; do
-                add $choice
+                main add bin $choice
             done
             success
         fi
         ;;
+
+    -d|--dev)
+        main link lib xlfns
+        for script in ${XLOTUS_ALL[@]}; do
+            main link bin $script
+        done
+        success
+        ;;
+
+    -h|--help)
+        printHelp
+        ;;
+
     *)
         etxt "Invalid argument: $1"
         ;;
