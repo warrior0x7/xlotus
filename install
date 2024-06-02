@@ -158,7 +158,6 @@ if [ -z "$1" ]; then
     stxt "No arguments provided, so I'll be using '--all'"
     opt="--all"
 else
-# If not, use it
     opt="$1"
 fi
 # ----------------------------------------------

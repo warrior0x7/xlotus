@@ -1,29 +1,50 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-source ~/.config/xlotus/xlfns
+source ~/.local/lib/xlotus/xlfns
 
-function invalid_color_msg () {
-    printf "%s\n\n" "$color is an invalid color"
-    printf "%s\n" "Valid options are : "
-    printf "%5s %s\n" " " "1) rgb(`ctxt r r`,`ctxt g g`,`ctxt b b`)"
-    printf "%5s %s\n" " " "2) #`ctxt r RR``ctxt g GG``ctxt b BB`"
-    printf "%5s %s\n" " " "3) 3 digit terminal color"
+function printHelp () {
+    cat <<-EOF
+Usage: xl-rgb <Mode> <Option>
+
+Options: One of the following options
+
+    -h , --help:
+        Prints this help page.
+
+    --rgb:
+        Specify target as RGB { rgb(r,g,b) }
+
+    --hex:
+        Specify target as Hex color { #RRGGBB }
+
+    --term:
+        Specify target as 0-255 color index of terminal { NNN }
+
+Modes:
+
+    -stdin:
+        Accepts input from pipe instead of arguments
+EOF
+}
+
+function invalidColorMsg () {
+    cat <<-EOF
+$1 is an invalid color
+
+Valid options are:
+    1) rgb(r,g,b)
+    2) #RRGGBB
+    3) 3 digit terminal color
+EOF
     exit 1
 }
 
-function split_rgb () {
-    rgb=`echo $1 | sed 's/^rgb(//g; s/)$//g'`
-    r=`echo $rgb | awk -F ',' '{print $1}'`
-    g=`echo $rgb | awk -F ',' '{print $2}'`
-    b=`echo $rgb | awk -F ',' '{print $3}'`
-}
-
 function hex_to_rgb () {
-    # Print RGB color
     hex=`echo $1 | sed 's/^#//g'`
     r=$(( 16#${hex:0:2} ))
     g=$(( 16#${hex:2:2} ))
     b=$(( 16#${hex:4:2} ))
+    echo "rgb($r,$g,$b)"
 }
 
 function rgb_to_hex () {
@@ -49,54 +70,49 @@ else
 fi
 
 case $1 in
-    rgb)
-        chkcolor=`check_color "$color"`
+    --rgb)
+        checkColorVal=`checkColor "$color"`
 
-        if [[ $chkcolor == "rgb" ]]; then
-            printf "%s\n" "$color"
-        elif [[ $chkcolor == "hex" ]]; then
+        if [[ $checkColorVal == "rgb" ]]; then
+            echo "$color"
+        elif [[ $checkColorVal == "hex" ]]; then
             hex_to_rgb "$color"
-            printf "rgb(%d,%d,%d)\n" $r $g $b
-        elif [[ $chkcolor == "term" ]]; then
-            printf "%s\n" "Term => RGB conversion is unavailable"
-        elif [[ $chkcolor == "invalid" ]]; then
-            invalid_color_msg
+        elif [[ $checkColorVal == "term" ]]; then
+            echo "Term => RGB conversion is unavailable"
+        elif [[ $checkColorVal == "invalid" ]]; then
+            invalidColorMsg $color
         fi
         ;;
-    hex)
-        chkcolor=`check_color "$color"`
 
-        if [[ $chkcolor == "rgb" ]]; then
+    --hex)
+        checkColorVal=`checkColor "$color"`
+
+        if [[ $checkColorVal == "rgb" ]]; then
             rgb_to_hex "$color"
-        elif [[ $chkcolor == "hex" ]]; then
+        elif [[ $checkColorVal == "hex" ]]; then
             printf "%s\n" "$color"
-        elif [[ $chkcolor == "term" ]]; then
+        elif [[ $checkColorVal == "term" ]]; then
             printf "%s\n" "Term => Hex conversion is unavailable"
-        elif [[ $chkcolor == "invalid" ]]; then
-            invalid_color_msg
+        elif [[ $checkColorVal == "invalid" ]]; then
+            invalidColorMsg $color
         fi
         ;;
-    term)
-        chkcolor=`check_color "$color"`
 
-        if [[ $chkcolor == "rgb" ]]; then
+    --term)
+        checkColorVal=`checkColor "$color"`
+
+        if [[ $checkColorVal == "rgb" ]]; then
             rgb_to_term "$color"
-        elif [[ $chkcolor == "hex" ]]; then
+        elif [[ $checkColorVal == "hex" ]]; then
             rgb=`hex_to_rgb "$color"`
             rgb_to_term "$rgb"
-        elif [[ $chkcolor == "term" ]]; then
-            printf "%s\n" "$color"
-        elif [[ $chkcolor == "invalid" ]]; then
-            invalid_color_msg
+        elif [[ $checkColorVal == "term" ]]; then
+            echo "$color"
+        elif [[ $checkColorVal == "invalid" ]]; then
+            invalidColorMsg $color
         fi
         ;;
-    -h|--help)
-        cat <<-HELP
-`ctxt g "Usage: xl-rgb [ -h | --help ]"`
-    Outputs a friendly help message if you can figure out how.
-HELP
-        ;;
-    *)
-        printf "%s\n" "Invalid option"
-        ;;
+
+    -h|--help) printHelp ;;
+    *) echo -e "`ctxt r "Invalid option: '$1'"`" ;;
 esac

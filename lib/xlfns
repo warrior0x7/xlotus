@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 XLOTUS_CFG=~/.config/xlotus
 XLOTUS_BIN=~/.local/bin
+XLOTUS_LIB=~/.local/lib/xlotus
 CACHE=~/.cache/xlotus
 
 function fzfcmd { 
@@ -38,7 +39,7 @@ function mpvcmd {
 
     mpv --ytdl=yes \
         --cache=yes \
-        --cache-secs=30 \
+        --cache-secs=240 \
         --script-opts=ytdl_hook-ytdl_path=yt-dlp \
         --ytdl-raw-options=force-ipv4= \
         --ytdl-format='bestvideo[ext=mp4][vcodec^=avc][height<=480]+bestaudio/best[height<=4800]' \
@@ -53,81 +54,84 @@ function mpvcmd {
 }
 
 function ctxt () {
-    ctxt_bseq="\033["
-    ctxt_reset="\033[0m"
+    ctxtBeginSeq="\033["
+    ctxtResetSeq="\033[0m"
 
     case $1 in
-          black)    ctxt_color=0 ;; # Black
-          r)        ctxt_color=1 ;; # Red
-          g)        ctxt_color=2 ;; # Green
-          y)        ctxt_color=3 ;; # Yellow
-          b)        ctxt_color=4 ;; # Blue
-          p)        ctxt_color=5 ;; # Purple
-          c)        ctxt_color=6 ;; # Cyan
-          w)        ctxt_color=7 ;; # White
+          black)    ctxtColor=0 ;; # Black
+          r)        ctxtColor=1 ;; # Red
+          g)        ctxtColor=2 ;; # Green
+          y)        ctxtColor=3 ;; # Yellow
+          b)        ctxtColor=4 ;; # Blue
+          p)        ctxtColor=5 ;; # Purple
+          c)        ctxtColor=6 ;; # Cyan
+          w)        ctxtColor=7 ;; # White
     esac
 
-    printf "${ctxt_bseq}0;3${ctxt_color}m%s${ctxt_reset}" "$2"
+    echo -e "${ctxtBeginSeq}0;3${ctxtColor}m${2}${ctxtResetSeq}"
 }
 
-function check_num () {
+function checkNum () {
     if [[ $1 =~ ^[+]?[0-9]+$ ]]; then
-        chknum="int"
+        numType="int"
     elif [[ $1 =~ ^[-][0-9]+$ ]]; then
-        chknum="-int"
+        numType="-int"
     elif [[ $1 =~ ^[+]?[0-9]+([.][0-9]+)?$ ]]; then
-        chknum="float"
+        numType="float"
     elif [[ $1 =~ ^[-][0-9]+([.][0-9]+)?$ ]]; then
-        chknum="-float"
+        numType="-float"
     else
-        chknum="NaN"
+        numType="NaN"
     fi
     
-    printf "%s" "$chknum"
+    echo "$numType"
 }
 
-function check_rgb () {
-    chk_rgb=`check_num $2`
+function checkRGB () {
+    checkRGBVal=`checkNum "$2"`
 
     case $1 in
-        r) msg_color="r Red" ;;
-        g) msg_color="g Green" ;;
-        b) msg_color="b Blue" ;;
+        r) msgColor="r Red" ;;
+        g) msgColor="g Green" ;;
+        b) msgColor="b Blue" ;;
     esac
     
-    msg_name=`ctxt $msg_color`
+    msgColorName=`ctxt $msgColor`
 
     if [ -z "$2" ]; then
-        printf "%-17s : %14s\n" "$msg_name" "Empty value"
-        chkcolor="invalid_rgb"
-    elif [[ "$chk_rgb" != "int" ]]; then
-        printf "%-17s : %17s\n" "$msg_name" "Not an integer"
-        chkcolor="invalid_rgb"
+        printf "%-17s : %14s\n" "$msgColorName" "Empty value"
+        checkColorVal="invalidRGB"
+    elif [[ "$checkRGBVal" != "int" ]]; then
+        printf "%-17s : %17s\n" "$msgColorName" "Not an integer"
+        checkColorVal="invalidRGB"
     fi
 }
 
-function check_color () {
+function split_rgb () {
+    rgb=`echo $1 | sed 's/^rgb(//g; s/)$//g'`
+    r=`echo $rgb | awk -F ',' '{print $1}'`
+    g=`echo $rgb | awk -F ',' '{print $2}'`
+    b=`echo $rgb | awk -F ',' '{print $3}'`
+}
+
+function checkColor () {
     if [[ "$1" =~ ^"#" ]] && [[ ${#1} == 7 ]]; then
-        chkcolor="hex"
+        checkColorVal="hex"
     elif [[ "$1" =~ ^"rgb(".*")"$ ]]; then
-        rgb=`echo $1 | sed 's/^rgb(//g; s/)$//g'`
+        split_rgb "$1"
 
-        r=`echo $rgb | awk -F ',' '{print $1}'`
-        g=`echo $rgb | awk -F ',' '{print $2}'`
-        b=`echo $rgb | awk -F ',' '{print $3}'`
+        checkRGB r $r
+        checkRGB g $g
+        checkRGB b $b
 
-        rgb_check r $r
-        rgb_check g $g
-        rgb_check b $b
-
-        if [[ "$chkcolor" != "invalid_rgb" ]]; then
-            chkcolor="rgb"
+        if [[ "$checkColorVal" != "invalidRGB" ]]; then
+            checkColorVal="rgb"
         fi
-    elif [ ${#1} -le 3 ]; then
-        chkcolor="term"
+    elif [ ${#1} -le 3 ] && [ "`checkNum $1`" == "int" ] && [ ${1} -lt 256 ]; then
+        checkColorVal="term"
     else
-        chkcolor="invalid"
+        checkColorVal="invalid"
     fi
 
-    printf "%s\n" "$chkcolor"
+    echo "$checkColorVal"
 }
