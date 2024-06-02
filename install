@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
 
+# ----------------------------------------------
+#   VARIABLES
+# ----------------------------------------------
 XLOTUS_CFG=~/.config/xlotus
 XLOTUS_BIN=~/.local/bin
 XLOTUS_LIB=~/.local/lib/xlotus
-XLOTUS_ALL=( "xl-themer" "xl-rgb" )
+# ----------------------------------------------
+# ----------------------------------------------
 
+
+
+# ----------------------------------------------
+#   FUNCTIONS
+# ----------------------------------------------
+# info to display when selecting scripts 
+# with -s option
 function scriptInfo () {
     cat <<-EOF
 xl-rgb;;;Color conversion utility
@@ -12,10 +23,15 @@ xl-themer;;;Find nerd icons, gtk theme icons, fonts and colors
 EOF
 }
 
+# Generate an array of script names from scriptInfo
+XLOTUS_ALL=("`scriptInfo | awk -F ';;;' '{print $1}'`")
+
+# Color text for OK(green), ERR(red) and REM(blue)
 function stxt () { echo -e "\033[0;32m[OK]\033[0m $1" ;}
 function etxt () { echo -e "\033[0;31m[ERR] $1\033[0m" ;}
 function rtxt () { echo -e "\033[0;34m[REM] $1\033[0m" ;}
 
+# Help page
 function printHelp () {
     cat <<-EOF
 Usage: install <Option>
@@ -37,6 +53,7 @@ Option: Can be one of the following:
 EOF
 }
 
+# If directory does not exist, make it
 function chkmk () { 
     if [ ! -d $2 ]; then 
         mkdir -p $2
@@ -44,23 +61,33 @@ function chkmk () {
     fi
 }
 
+# Commands to run with the main function
 function add () { cp $@ ;}
 function link () { ln -s `pwd`/$@ ;}
 
+# Main function to run for each script
 function main () {
+    # Command to run (copy or link)
     cmd="$1"
     shift
     case $1 in
         lib|bin)
+
+            # Set directory of installation
             case $1 in
                 lib) installDir=$XLOTUS_LIB ;;
                 bin) installDir=$XLOTUS_BIN ;;
             esac
 
+            # Check if specified file exists in this repo
             if [ ! -f $1/$2 ]; then
                 etxt "'$1/$2' does not exist in this repo"
+                # Set has_err to 1 to indicate there's an error
+                # to prevent the success message
                 has_err=1
             else
+                # if file does not exist in installation
+                # directory
                 if [ ! -f $installDir/$2 ]; then
                     $cmd $1/$2 $installDir/$2
                     if [ "$cmd" == "add" ]; then
@@ -69,9 +96,14 @@ function main () {
                         stxt "Linked '$2' ($1)"
                     fi
                 else
+                    # if file does not exist in installDir
+                    #
+                    # if command is add
                     if [ "$cmd" == "add" ]; then
+                        # check filetype
                         fileType=`file -bi $installDir/$2 | awk -F ';' '{print $1}'`
 
+                        # if filetype is a symlink
                         if [ "$fileType" == "inode/symlink" ]; then
                             rm $installDir/$2
                             rtxt "'$2' ($1) removed old symlink"
@@ -80,9 +112,12 @@ function main () {
                         else
                             stxt "'$2' ($1) already exists ... no need to reinstall"
                         fi
+                    # if command is link
                     elif [ "$cmd" == "link" ]; then
+                        # check filetype
                         fileType=`file -bi $installDir/$2 | awk -F ';' '{print $1}'`
 
+                        # if filetype is a shellscript
                         if [ "$fileType" == "text/x-shellscript" ]; then
                             rm $installDir/$2
                             rtxt "'$2' ($1) removed old $1"
@@ -98,26 +133,42 @@ function main () {
     esac
 }
 
+# Message to print when installation was a success
 function success () {
-    if [ -n "$has_err" ]; then
-        if [ $has_err -ne 1 ]; then
-            printf "\n\033[0;32m%s\033[0m\n" "Installation was a success!"
-            printf "\nDon't forget to add \033[0;32m%s\033[0m to your PATH variable\n" "\$HOME/.local/bin"
-        fi
+    if [ "$has_err" != "1" ]; then
+        echo -e "\n\033[0;32mInstallation was a success!\033[0m"
+        echo -e "\nDon't forget to add \033[0;32m\$HOME/.local/bin\033[0m to your PATH variable"
     fi
 }
+# ----------------------------------------------
+# ----------------------------------------------
 
+
+
+# ----------------------------------------------
+#   PRE-INSTALLATION SETUP
+# ----------------------------------------------
+# Setup directories
 chkmk d $XLOTUS_CFG
 chkmk d $XLOTUS_BIN
 chkmk d $XLOTUS_LIB
 
+# If no arguments provided, use --all
 if [ -z "$1" ]; then
     stxt "No arguments provided, so I'll be using '--all'"
     opt="--all"
 else
+# If not, use it
     opt="$1"
 fi
+# ----------------------------------------------
+# ----------------------------------------------
 
+
+
+# ----------------------------------------------
+#   PROCESS OPTIONS
+# ----------------------------------------------
 case $opt in
     -a|--all)
         main add lib xlfns
@@ -153,11 +204,6 @@ case $opt in
         success
         ;;
 
-    -h|--help)
-        printHelp
-        ;;
-
-    *)
-        etxt "Invalid argument: $1"
-        ;;
+    -h|--help) printHelp ;;
+    *) etxt "Invalid argument: $1" ;;
 esac
