@@ -132,6 +132,4 @@ function checkColor () {
     else
         checkColorVal="invalid"
     fi
-
-    echo "$checkColorVal"
 }

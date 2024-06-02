@@ -29,7 +29,7 @@ EOF
 
 function invalidColorMsg () {
     cat <<-EOF
-$1 is an invalid color
+`ctxt r "$1 is an invalid color"`
 
 Valid options are:
     1) rgb(r,g,b)
@@ -71,7 +71,7 @@ fi
 
 case $1 in
     --rgb)
-        checkColorVal=`checkColor "$color"`
+        checkColor "$color"
 
         if [[ $checkColorVal == "rgb" ]]; then
             echo "$color"
@@ -85,7 +85,7 @@ case $1 in
         ;;
 
     --hex)
-        checkColorVal=`checkColor "$color"`
+        checkColor "$color"
 
         if [[ $checkColorVal == "rgb" ]]; then
             rgb_to_hex "$color"
@@ -99,7 +99,7 @@ case $1 in
         ;;
 
     --term)
-        checkColorVal=`checkColor "$color"`
+        checkColor "$color"
 
         if [[ $checkColorVal == "rgb" ]]; then
             rgb_to_term "$color"
