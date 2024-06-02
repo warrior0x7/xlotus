@@ -13,11 +13,11 @@ A collection of shell scripts that extends the functionality of my system
 ### Arch Linux
 I personally use `konsole` because it supports both RTL and sixel
 ```Bash
-sudo pacman -Sy konsole
+sudo pacman -Sy --needed konsole
 ```
 Other dependencies:
 ```Bash
-sudo pacman -Sy fzf
+sudo pacman -Sy --needed fzf
 ```
 
 ## Getting started
