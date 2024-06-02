@@ -21,7 +21,17 @@ sudo pacman -Sy fzf
 ```
 
 ## Getting started
-Scripts including the installer itself have help pages
+1. Clone the repo
+```Bash
+git clone https://github.com/warrior0x7/xlotus.git
+cd xlotus
+```
+2. Scripts including the installer itself have help pages. Start by reading the help page of the installer
 ```Bash
 ./install --help
+```
+
+3. Invoking install script without arguments installs everything
+```Bash
+./install
 ```
