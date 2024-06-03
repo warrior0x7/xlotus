@@ -18,8 +18,8 @@ XLOTUS_LIB=~/.local/lib/xlotus
 # with -s option
 function scriptInfo () {
     cat <<-EOF
-xl-rgb;;;Color conversion utility
-xl-yt;;;Simple YouTube rss feed with fzf
+xl-yt;;;YouTube RSS feed from terminal using FZF
+xl-rgb;;;Color converter to RGB, Hex or 0-255 index terminal color
 EOF
 }
 
@@ -53,6 +53,20 @@ Option: Can be one of the following:
     -d , --dev:
         Make symbolic links instead of installing scripts.
         This is useful for development purposes.
+
+Directories involved:
+
+    XLOTUS_CFG = ~/.config/xlotus
+        Configuration files for xlotus utilities
+
+    XLOTUS_BIN = ~/.local/bin
+        Directory where scripts are installed/linked to
+
+    XLOTUS_LIB = ~/.local/lib/xlotus
+        Files that gets sourced inside scripts
+
+    XLOTUS_CACHE = ~/.cache/xlotus
+        Cache for scripts
 EOF
 }
 
