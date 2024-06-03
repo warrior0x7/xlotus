@@ -27,6 +27,7 @@ EOF
 XLOTUS_ALL=("`scriptInfo | awk -F ';;;' '{print $1}'`")
 
 XLOTUS_LIB_ALL=("`ls lib/`")
+XLOTUS_CFG_ALL=("`ls cfg/`")
 
 # Color text for OK(green), ERR(red) and REM(blue)
 function stxt () { echo -e "\033[0;32m[OK]\033[0m $1" ;}
@@ -73,12 +74,13 @@ function main () {
     cmd="$1"
     shift
     case $1 in
-        lib|bin)
+        lib|bin|cfg)
 
             # Set directory of installation
             case $1 in
                 lib) installDir=$XLOTUS_LIB ;;
                 bin) installDir=$XLOTUS_BIN ;;
+                cfg) installDir=$XLOTUS_CFG ;;
             esac
 
             # Check if specified file exists in this repo
@@ -120,7 +122,7 @@ function main () {
                         fileType=`file -bi $installDir/$2 | awk -F ';' '{print $1}'`
 
                         # if filetype is a shellscript
-                        if [ "$fileType" == "text/x-shellscript" ]; then
+                        if [ "$fileType" != "inode/symlink" ]; then
                             rm $installDir/$2
                             rtxt "'$2' ($1) removed old $1"
                             $cmd $1/$2 $installDir/$2
@@ -172,6 +174,9 @@ fi
 # ----------------------------------------------
 case $opt in
     -a|--all)
+        for cfg in ${XLOTUS_CFG_ALL[@]}; do
+            main add cfg $cfg
+        done
         for lib in ${XLOTUS_LIB_ALL[@]}; do
             main add lib $lib
         done
@@ -191,6 +196,9 @@ case $opt in
             awk '{ print $1 }'`")
 
         if [ -n "$choices" ]; then
+            for cfg in ${XLOTUS_CFG_ALL[@]}; do
+                main add cfg $cfg
+            done
             for lib in ${XLOTUS_LIB_ALL[@]}; do
                 main add lib $lib
             done
@@ -202,6 +210,10 @@ case $opt in
         ;;
 
     -d|--dev)
+        for cfg in ${XLOTUS_CFG_ALL[@]}; do
+            main link cfg $cfg
+        done
+
         for lib in ${XLOTUS_LIB_ALL[@]}; do
             main link lib $lib
         done
