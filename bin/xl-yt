@@ -31,6 +31,9 @@ Options: One of the following options
         Adds supplied link to list of feeds. You can use --add clip to use link from 
         clipboard instead.
 
+    -c, --change:
+        Edit subscriptions with your EDITOR
+
     -u, --update:
         Updates subscription feed
 
@@ -142,6 +145,10 @@ case $1 in
                     "<b>Please copy the url of a youtube channel to your clipboard</b>"
             fi
         fi
+        ;;
+
+    -c|--change)
+        $EDITOR $CONFIG/ytsubs
         ;;
 
     -i|--import)
