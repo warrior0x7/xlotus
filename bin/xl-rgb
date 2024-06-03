@@ -64,6 +64,11 @@ function rgb_to_term () {
     printf "%03d\n" "$(( ((r-35)/40)*6*6 + ((g-35)/40)*6 + ((b-35)/40) + 16 ))"
 }
 
+if [ -z "$1" ]; then
+    echo -e "`ctxt r "Empty argument"`"
+    exit 1
+fi
+
 ALL_ARGS=($@)
 if [ "${ALL_ARGS[$#-1]}" == "-" ]; then
     read color
