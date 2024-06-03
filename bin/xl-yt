@@ -221,9 +221,9 @@ case $1 in
         if [[ -n "${@:2}" ]]; then
             grep -F ";;;${@:2}" $CACHE/ytrss |\
                 sed "s|T.*$||g" |\
-                awk -F ';;;' '{printf "[ Publish date: %s ]\n[alt-s => Firefox, alt-c => Copy]" ,$1 }'
+                awk -F ';;;' '{printf "[ Publish date: %s ]\n[alt-s => Browser, alt-c => Copy]" ,$1 }'
         else
-            echo "[alt-s => Firefox, alt-c => Copy]"
+            echo "[alt-s => Browser, alt-c => Copy]"
         fi
         ;;
 
