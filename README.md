@@ -19,6 +19,7 @@ A collection of shell scripts that extends the functionality of my system
 - chafa
 - bat
 - curl
+- awk
 
 ### Arch Linux
 I personally use `konsole` because it supports both RTL and sixel
@@ -27,7 +28,7 @@ sudo pacman -Sy --needed konsole
 ```
 Other dependencies:
 ```Bash
-sudo pacman -Sy --needed fzf cliphist chafa bat curl
+sudo pacman -Sy --needed fzf cliphist chafa bat curl awk
 ```
 
 ## Getting started
