@@ -15,7 +15,6 @@ A collection of shell scripts that extends the functionality of my system
 ## Dependencies
 - a terminal with sixel support
 - fzf
-- cliphist
 - chafa
 - bat
 - curl
@@ -28,7 +27,7 @@ sudo pacman -Sy --needed konsole
 ```
 Other dependencies:
 ```Bash
-sudo pacman -Sy --needed fzf cliphist chafa bat curl awk
+sudo pacman -Sy --needed fzf chafa bat curl gawk
 ```
 
 ## Getting started
