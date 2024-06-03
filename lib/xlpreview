@@ -38,8 +38,8 @@ case $1 in
 
     yt)
         shift
-        line=`cat $XLOTUS_CACHE/yt/ytrss | grep --color=never -F ";;;$1"`
-
+        imgName=`echo "$1" | sed 's|^.*?v=||g'`
+        line=`cat $XLOTUS_CACHE/xl-yt/ytrss | grep --color=never -F ";;;$1"`
         url=`echo "$line" | awk -F ';;;' '{print $5}'`
         title=`echo "$line" | awk -F ';;;' '{print $4}'`
         name=`echo "$line" | awk -F ';;;' '{print $2}'`
@@ -47,9 +47,7 @@ case $1 in
         preview_height=$(( $FZF_PREVIEW_LINES - 5 ))
         preview_width=$(( $FZF_PREVIEW_COLUMNS - 5 ))
 
-        curl -s "$url" |\
-            chafa -f sixels -s ${preview_width}x${preview_height} -
-
+        chafa -f sixels -s ${preview_width}x${preview_height} $XLOTUS_CACHE/xl-yt/img/$imgName
 
         printf "[%s]" "$name"
 

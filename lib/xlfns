@@ -9,7 +9,7 @@ XLOTUS_CACHE=~/.cache/xlotus
 function chkmk () { 
     if [ ! -d $2 ]; then 
         mkdir -p $2
-        stxt "Created directory: $2" 
+        ctxt g "Created directory: $2" 
     fi
 }
 
@@ -138,5 +138,15 @@ function checkColor () {
         checkColorVal="term"
     else
         checkColorVal="invalid"
+    fi
+}
+
+function checkNetwork () {
+    curl -s https://google.com > /dev/null
+    if [ "$?" -ne 0 ]; then
+        notifier err \
+            "Xl-yt" \
+            "No Connection available"
+        exit 1
     fi
 }
