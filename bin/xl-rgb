@@ -6,9 +6,9 @@ function printHelp () {
     cat <<-EOF
 Name: xl-rgb - A tiny color converter written in bash (part of xlotus utilities)
 
-Usage: xl-rgb <Mode> <Option>
+Usage: xl-rgb <Option>
 
-Options: One of the following options
+Options: One of the following options:
 
     -h , --help:
         Prints this help page.
@@ -22,10 +22,10 @@ Options: One of the following options
     --term:
         Specify target as 0-255 color index of terminal { NNN }
 
-Modes:
-
-    -stdin:
-        Accepts input from pipe instead of arguments
+Reading from stdin:
+    You can tell the script to read from stdin by adding a - at the end.
+    Example:
+        echo "#ea6962" | xl-rgb --rgb -
 EOF
 }
 
@@ -64,9 +64,9 @@ function rgb_to_term () {
     printf "%03d\n" "$(( ((r-35)/40)*6*6 + ((g-35)/40)*6 + ((b-35)/40) + 16 ))"
 }
 
-if [[ $1 == -stdin ]]; then
+ALL_ARGS=($@)
+if [ "${ALL_ARGS[$#-1]}" == "-" ]; then
     read color
-    shift
 else
     color=$2
 fi

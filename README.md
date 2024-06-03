@@ -7,8 +7,12 @@ A collection of shell scripts that extends the functionality of my system
 >by scripts here
 
 ## Dependencies
-- terminal with sixel support
+- a terminal with sixel support
 - fzf
+- cliphist
+- chafa
+- bat
+- curl
 
 ### Arch Linux
 I personally use `konsole` because it supports both RTL and sixel
@@ -17,7 +21,7 @@ sudo pacman -Sy --needed konsole
 ```
 Other dependencies:
 ```Bash
-sudo pacman -Sy --needed fzf
+sudo pacman -Sy --needed fzf cliphist chafa bat curl
 ```
 
 ## Getting started

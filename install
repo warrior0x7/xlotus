@@ -19,11 +19,14 @@ XLOTUS_LIB=~/.local/lib/xlotus
 function scriptInfo () {
     cat <<-EOF
 xl-rgb;;;Color conversion utility
+xl-yt;;;Simple YouTube rss feed with fzf
 EOF
 }
 
 # Generate an array of script names from scriptInfo
 XLOTUS_ALL=("`scriptInfo | awk -F ';;;' '{print $1}'`")
+
+XLOTUS_LIB_ALL=("`ls lib/`")
 
 # Color text for OK(green), ERR(red) and REM(blue)
 function stxt () { echo -e "\033[0;32m[OK]\033[0m $1" ;}
@@ -169,7 +172,9 @@ fi
 # ----------------------------------------------
 case $opt in
     -a|--all)
-        main add lib xlfns
+        for lib in ${XLOTUS_LIB_ALL[@]}; do
+            main add lib $lib
+        done
         for script in ${XLOTUS_ALL[@]}; do
             main add bin $script
         done
@@ -186,7 +191,9 @@ case $opt in
             awk '{ print $1 }'`")
 
         if [ -n "$choices" ]; then
-            main add lib xlfns
+            for lib in ${XLOTUS_LIB_ALL[@]}; do
+                main add lib $lib
+            done
             for choice in ${choices[@]}; do
                 main add bin $choice
             done
@@ -195,7 +202,10 @@ case $opt in
         ;;
 
     -d|--dev)
-        main link lib xlfns
+        for lib in ${XLOTUS_LIB_ALL[@]}; do
+            main link lib $lib
+        done
+
         for script in ${XLOTUS_ALL[@]}; do
             main link bin $script
         done

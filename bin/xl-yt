@@ -1,0 +1,216 @@
+#!/bin/bash
+
+source ~/.local/lib/xlotus/xlfns
+
+CONFIG=$XLOTUS_CFG/yt
+CACHE=$XLOTUS_CACHE/yt
+TMP=$XLOTUS_CACHE/yt/tmp
+
+chkmk d $CONFIG
+chkmk d $CACHE
+chkmk d $TMP
+
+[ ! -f $CONFIG/ytsubs ] && touch $CONFIG/ytsubs
+
+function printHelp () {
+    cat <<-EOF
+Name: xl-yt - Simple YouTube RSS feed with fzf
+
+Usage: xl-yt <Option>
+
+Configuration:
+    Subscriptions file is located at ~/.config/xlotus/yt/ytsubs. Though, it's recommended
+    to invoke this script with --add option as it retrieves channel id automatically
+
+Options: One of the following options
+
+    -h , --help:
+        Prints this help page.
+
+    -a, --add: <URL> , clip
+        Adds supplied link to list of feeds. You can use --add clip to use link from 
+        clipboard instead.
+
+    -u, --update:
+        Updates subscription feed
+
+    -v, --view:
+        View subscription feed
+
+    -i, --import: <FILE>
+        Import subscriptions from NewPipe exported JSON
+
+    -e, --export: <FILENAME> (name without .json extension)
+        Export subscriptions to NewPipe JSON to current directory
+EOF
+}
+
+function checkNetwork () {
+    curl -s https://google.com > /dev/null
+    if [ "$?" -ne 0 ]; then
+        notifier err \
+            "Xl-yt" \
+            "No Connection available"
+        exit 1
+    fi
+}
+
+function updater {
+        checkNetwork
+        if [ -n "`ls -A $TMP 2>/dev/null`" ]; then
+            rm $TMP/*
+        fi
+
+        if [ -n "`cat $CONFIG/ytsubs`" ]; then
+            cat $CONFIG/ytsubs |\
+                awk -F ';;;' '{print $2}' |\
+                sed 's/=/={/g; s/$/}/g' |\
+                xargs -P 0 -I {} curl -X 'GET' -s {} --output $TMP/'#1'
+
+            if [ $? -ne 0 ]; then
+                notifier err \
+                         "Ytrss" \
+                         "Cannot fetch feed, There seems to be a network error"
+                exit 1
+            fi
+
+            cat $TMP/* |\
+                    awk '/<entry>/,/<\/entry>/' |\
+                    grep --no-group-separator --color=never -A 10 href |\
+                    sed '/author>/d; /<uri>/d; /<media:group>/d; /<media:content url=/d; /<updated>/d; s/.*href="//g; s/.*<media:thumbnail url="//g; s/".*$//g; s/.*<published>//g; s/<\/published>.*$//g; s/^.*<media:title>//g; s/<\/media:title>.*$//g; s/&quot;/"/g; s/^.*<name>//g; s/<\/name>.*$//g; s/&amp;/\&/g' |\
+                    perl -pe 's/\n/;;;/g if $. % 5' |\
+                    awk -F ';;;' '{t=$1; $1=$3; $3=t; print $1";;;"$2";;;"$3";;;"$4";;;"$5;}' > $CACHE/ytrss
+
+            notifier normal \
+                "application-rss+xml" \
+                "Ytrss" \
+                "Feed updated successfully"
+        else
+            notifier normal \
+                "application-rss+xml" \
+                "Ytrss" \
+                "Seems like you didn't subscribe to any feed" \
+                "<b>Please subscribe to at least 1 channel and try again later</b>"
+        fi
+}
+
+case $1 in
+    -v|--view)
+        if ! [ -f $CACHE/ytrss ]; then
+            echo "Updating feed..."
+            updater
+        fi
+
+        choice=`cat $CACHE/ytrss |\
+            sort -r |\
+            awk -F ';;;' '{ printf "%s %s\n", $3, $4}' |\
+            fzfcmd "Video" \
+                   --delimiter=" " \
+                   --with-nth=2.. \
+                   --preview-window=right:50% \
+                   --bind="focus:transform-header($XLOTUS_BIN/xl-yt fzfheader {1}),alt-s:become($XLOTUS_BIN/xl-yt handle_link browser {1}),alt-c:execute($XLOTUS_BIN/xl-yt handle_link copy {1})" \
+                   --preview="$XLOTUS_LIB/xlpreview yt {1}" |\
+                   awk '{printf $1}'`
+
+        choiceUrl=`grep -F ";;;$choice" $CACHE/ytrss | awk -F ';;;' '{print $3}'`
+
+        if [ -n "$choice" ]; then
+            nohup bash -c "source $XLOTUS_LIB/xlfns; mpvcmd $choiceUrl &" 2&>/dev/null
+        fi
+        ;;
+
+    -u|--update) updater ;;
+
+    -a|--add)
+        shift
+        checkNetwork
+        if [ "$1" == "clip" ]; then
+            ytUrl=`wl-paste`
+        else
+            ytUrl="$1"
+        fi
+
+        if [ -n "$ytUrl" ]; then
+            if [[ $ytUrl =~ ^"https://www.youtube.com/@" ]]; then
+                rssInfo=`curl -s "$ytUrl" | grep '{"title":' | sed 's/.*{"channelMetadataRenderer"://g; s/{"title"://g; s/","description":.*,"rssUrl":"/;;;/g; s/",".*//g; s/^.*"//g; s/channel_id=UC/playlist_id=UU/g'`
+                
+                $XLOTUS_BIN/xl-yt ytrssCheckUrl add "$rssInfo" "$ytUrl"
+            else
+                notifier err \
+                    "Ytrss" \
+                    "Not a youtube url" \
+                    "<b>Please copy the url of a youtube channel to your clipboard</b>"
+            fi
+        fi
+        ;;
+
+    -i|--import)
+        cat $2 |\
+            jq ".subscriptions[] | .url, .name" |\
+            sed 's|^"http.*channel/UC|https://www.youtube.com/feeds/videos.xml?playlist_id=UU|g; s/^"//g ;s/"$//g' |\
+            perl -pe 's/\n/;;;/g if $. % 2' |\
+            awk -F ';;;' '{t=$1; $1=$2; $2=t; print $1";;;"$2}' |\
+            xargs -n1 -I {} bash -c "$XLOTUS_BIN/xl-yt ytrssCheckUrl import '{}'" 2&>/dev/null
+
+        echo "`ctxt g "Imported successfully"`"
+        ;;
+
+    -e|--export)
+        if [ -n "$2" ]; then
+            cat $CONFIG/ytsubs |\
+                awk -F ';;;' '{t=$1; $1=$2; $2=t; print $1";;;"$2}' |\
+                sed 's/^/{\n"service_id": 0,\n"url": "/g; s/;;;/",\n"name": "/g; s/$/"\n}/g; s|feeds/videos.xml?playlist_id=UU|channel/UC|g' |\
+                jq -s '{"app_version": "0.27.0", "app_version_int": 997, "subscriptions": .}' > $2.json
+        else
+            echo "`ctxt r "Please name the exported file"`"
+        fi
+        ;;
+
+    ytrssCheckUrl)
+        case $2 in
+            add)
+                if grep -q -w "^$3$" $CONFIG/ytsubs; then
+                    notifier err \
+                        "Ytrss" \
+                        "Feed already exists"
+                else
+                    echo "$3" >> $CONFIG/ytsubs
+                    notifier normal \
+                        "application-rss+xml" \
+                        "Ytrss" \
+                        "Feed added successfully" \
+                        "<b>$4</b>"
+                fi
+                ;;
+            import)
+                if ! grep -q -w "^$3$" $CONFIG/ytsubs; then
+                    echo "$3" >> $CONFIG/ytsubs
+                fi
+                ;;
+        esac
+        ;;
+
+    handle_link)
+        shift
+        case $1 in
+            browser)
+                nohup bash -c "xdg-open \"${2}\" &" 2&>/dev/null
+                ;;
+            copy)
+                printf "%s" "$2" | wl-copy
+                ;;
+        esac
+        ;;
+
+    fzfheader)
+        if [[ -n "${@:2}" ]]; then
+            grep -F ";;;${@:2}" $CACHE/ytrss |\
+                sed "s|$CACHE/ytrss:||g" |\
+                awk -F ';;;' '{printf "[ Upload: %s ]\n[alt-s => Firefox][alt-c => Copy]" ,$1 }'
+        else
+            echo "[alt-s => Firefox][alt-c => Copy]"
+        fi
+        ;;
+
+    *) echo "`ctxt r "Invalid argument '$1'"`"
+esac
