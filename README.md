@@ -10,7 +10,7 @@ A collection of shell scripts that extends the functionality of my system
 |Script|Description|
 |--|--|
 |xl-yt|YouTube RSS feed from terminal using FZF|
-|xl-rgb|Color converter to RGB, Hex or 0-255 terminal index color|
+|xl-rgb|Color converter to RGB, Hex or 0-255 index terminal color|
 
 ## Dependencies
 - a terminal with sixel support
