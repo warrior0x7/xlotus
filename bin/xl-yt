@@ -16,7 +16,7 @@ chkmk d $IMG
 
 function printHelp () {
     cat <<-EOF
-Name: xl-yt - Simple YouTube RSS feed with fzf
+Name: xl-yt - Simple YouTube RSS feed with fzf (part of xlotus utilities)
 
 Usage: xl-yt <Option>
 

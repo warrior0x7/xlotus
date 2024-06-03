@@ -6,6 +6,12 @@ A collection of shell scripts that extends the functionality of my system
 >in production. Use at your own risk. I am not responsible for any damage caused
 >by scripts here
 
+## Scripts
+|Script|Description|
+|--|--|
+|xl-yt|YouTube RSS feed from terminal using FZF|
+|xl-rgb|Color converter to RGB,Hex or 0-255 terminal index color|
+
 ## Dependencies
 - a terminal with sixel support
 - fzf
