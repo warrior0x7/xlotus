@@ -4,11 +4,12 @@ source ~/.local/lib/xlotus/xlfns
 
 function printHelp () {
     cat <<-EOF
-Name: xl-rgb - A tiny color converter written in bash (part of xlotus utilities)
+Description:
+    A simple color converter to RGB, Hex or 0-255 index terminal color.
 
 Usage: xl-rgb <Option>
 
-Options: One of the following options:
+Option: One of the following options:
 
     -h , --help:
         Prints this help page.
@@ -26,6 +27,10 @@ Reading from stdin:
     You can tell the script to read from stdin by adding a - at the end.
     Example:
         echo "#ea6962" | xl-rgb --rgb -
+
+Project:
+    This script is a part of xlotus utilities
+    https://github.com/warrior0x7/xlotus
 EOF
 }
 

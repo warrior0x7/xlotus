@@ -9,8 +9,9 @@ A collection of shell scripts that extends the functionality of my system
 ## Scripts
 |Script|Description|
 |--|--|
-|xl-yt|YouTube RSS feed from terminal using FZF|
-|xl-rgb|Color converter to RGB, Hex or 0-255 index terminal color|
+|xl-yt|A simple YouTube RSS feed aggregator using FZF|
+|xl-rgb|A simple color converter to RGB, Hex or 0-255 index terminal color|
+|xl-cmd|A simple runner for user-defined commands|
 
 ## Dependencies
 - a terminal with sixel support

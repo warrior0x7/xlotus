@@ -18,8 +18,9 @@ XLOTUS_LIB=~/.local/lib/xlotus
 # with -s option
 function scriptInfo () {
     cat <<-EOF
-xl-yt;;;YouTube RSS feed from terminal using FZF
+xl-yt;;;YouTube RSS feed aggregator
 xl-rgb;;;Color converter to RGB, Hex or 0-255 index terminal color
+xl-cmd;;;Runner for user-defined commands
 EOF
 }
 
