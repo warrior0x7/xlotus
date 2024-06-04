@@ -133,7 +133,11 @@ case $1 in
         shift
         checkNetwork
         if [ "$1" == "clip" ]; then
-            ytUrl=`wl-paste`
+            if [ -n "$WAYLAND_DISPLAY" ]; then
+                ytUrl=`wl-paste`
+            else
+                ytUrl=`xclip -out -selection c`
+            fi
         else
             ytUrl="$1"
         fi

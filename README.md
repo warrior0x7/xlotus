@@ -25,9 +25,13 @@ I personally use `konsole` because it supports both RTL and sixel
 ```Bash
 sudo pacman -Sy --needed konsole
 ```
-Other dependencies:
+#### Xorg
 ```Bash
-sudo pacman -Sy --needed fzf chafa bat curl gawk
+sudo pacman -Sy --needed fzf chafa bat curl gawk xclip
+```
+#### Wayland
+```Bash
+sudo pacman -Sy --needed fzf chafa bat curl gawk wl-clipboard
 ```
 
 ## Getting started
