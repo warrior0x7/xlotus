@@ -19,6 +19,8 @@ A collection of shell scripts that extends the functionality of my system
 - bat
 - curl
 - awk
+- xclip (X11)
+- wl-clipboard (Wayland)
 
 ### Arch Linux
 I personally use `konsole` because it supports both RTL and sixel
