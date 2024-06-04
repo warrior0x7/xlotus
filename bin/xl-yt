@@ -216,7 +216,12 @@ case $1 in
                 nohup bash -c "xdg-open \"${2}\" &" 2&>/dev/null
                 ;;
             copy)
-                printf "%s" "$2" | wl-copy
+                if [ -n "$WAYLAND_DISPLAY" ]; then
+                    printf "%s" "$2" | wl-copy
+                else
+                    printf "%s" "$2" | xclip -selection c
+                fi
+
                 ;;
         esac
         ;;
