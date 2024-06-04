@@ -9,9 +9,10 @@ A collection of shell scripts that extends the functionality of my system
 ## Scripts
 |Script|Description|
 |--|--|
-|xl-yt|A simple YouTube RSS feed aggregator using FZF|
-|xl-rgb|A simple color converter to RGB, Hex or 0-255 index terminal color|
-|xl-cmd|A simple runner for user-defined commands|
+|xl-yt|YouTube RSS feed aggregator using FZF|
+|xl-rgb|Color converter to RGB, Hex or 0-255 index terminal color|
+|xl-cmd|Runner for user-defined commands|
+|xl-headd|Run commands on headphone jack plug/unplug|
 
 ## Dependencies
 - a terminal with sixel support
@@ -22,6 +23,7 @@ A collection of shell scripts that extends the functionality of my system
 - awk
 - xclip (X11)
 - wl-clipboard (Wayland)
+- acpid
 
 ### Arch Linux
 I personally use `konsole` because it supports both RTL and sixel
@@ -30,11 +32,11 @@ sudo pacman -Sy --needed konsole
 ```
 #### Xorg
 ```Bash
-sudo pacman -Sy --needed fzf chafa bat curl gawk xclip
+sudo pacman -Sy --needed fzf chafa bat curl gawk acpid xclip
 ```
 #### Wayland
 ```Bash
-sudo pacman -Sy --needed fzf chafa bat curl gawk wl-clipboard
+sudo pacman -Sy --needed fzf chafa bat curl gawk acpid wl-clipboard
 ```
 
 ## Getting started

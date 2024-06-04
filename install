@@ -21,6 +21,7 @@ function scriptInfo () {
 xl-yt;;;YouTube RSS feed aggregator
 xl-rgb;;;Color converter to RGB, Hex or 0-255 index terminal color
 xl-cmd;;;Runner for user-defined commands
+xl-headd;;;Run commands on headphone jack plug/unplug
 EOF
 }
 

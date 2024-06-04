@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# 
+# Credit : https://askubuntu.com/a/1284966
+
+source ~/.local/lib/xlotus/xlfns
+
+function printHelp () {
+    cat <<-EOF
+Description:
+    Headphone daemon using acpi to run commands on headphone 
+    jack plug/unplug events.
+
+Usage: xl-headd <Option>
+       
+       It will run a daemon so you should add it
+       to your autostart script.
+
+Option:
+
+    -h , --help:
+        Prints this help page.
+
+    -e , --edit:
+        Edit the script.
+
+Configuration:
+    1. Run acpi_listen.
+    2. Plug then unplug your headphones to see
+       outputted lines.
+    3. Use --edit option to open this script in
+       your EDITOR and scroll down till you see the 
+       if/elif/else statement.
+    4. Edit the if/elif/else statement to run the commands
+       you want.
+
+Project:
+    This script is a part of xlotus utilities
+    https://github.com/warrior0x7/xlotus
+EOF
+}
+
+case $1 in
+    -h|--help) printHelp ;;
+    -e|--edit) $EDITOR $XLOTUS_BIN/xl-headd ;;
+    *)
+        if [ -z "$1"]; then
+            # --------------------------------------------
+            # EDIT CONDITION BELOW
+            # --------------------------------------------
+            acpi_listen | while IFS= read -r line;
+            do
+                if [ "$line" = "jack/headphone HEADPHONE plug" ]; then
+                    notifier normal \
+                        "audio-headphones" \
+                        "Headphone Detector" \
+                        "Headphones plugged in"
+
+                elif [ "$line" = "jack/headphone HEADPHONE unplug" ]; then
+                    notifier normal \
+                        "audio-speakers" \
+                        "Headphone Detector" \
+                        "Headphones unplugged"
+                fi
+            done
+        fi
+        ;;
+esac
