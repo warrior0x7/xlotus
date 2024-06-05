@@ -50,13 +50,21 @@ case $1 in
 
                 script=`echo "$cmd" | cut -d' ' -f1`
 
-                if [ -f $XLOTUS_BIN/$script ]; then
-                    bash -c "$XLOTUS_BIN/$cmd"
-                else
-                    if [[ "$cmd" =~ ^"[i]" ]]; then
+                if [[ "$cmd" =~ ^"[i]" ]]; then
+                    if [ -f $XLOTUS_BIN/$script ]; then
+                        bash -c "$XLOTUS_BIN/`echo $cmd | sed 's/^\[i\] //g'`"
+                    else
                         bash -c "`echo $cmd | sed 's/^\[i\] //g'`"
-                    elif [[ "$cmd" =~ ^"&" ]]; then
+                    fi
+                elif [[ "$cmd" =~ ^"&" ]]; then
+                    if [ -f $XLOTUS_BIN/$script ]; then
+                        bash -c "$XLOTUS_BIN/`echo $cmd | sed 's/^& //g'` &"
+                    else
                         bash -c "`echo $cmd | sed 's/^& //g'` &"
+                    fi
+                else
+                    if [ -f $XLOTUS_BIN/$script ]; then
+                        bash -c "$XLOTUS_BIN/$cmd"
                     else
                         bash -c "nohup bash -c '$cmd &' 2&>/dev/null"
                     fi
