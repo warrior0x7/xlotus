@@ -7,9 +7,9 @@ XLOTUS_CACHE=~/.cache/xlotus
 
 # If directory does not exist, make it
 function chkmk () { 
-    if [ ! -d $2 ]; then 
-        mkdir -p $2
-        ctxt g "Created directory: $2" 
+    if [ ! -d $1 ]; then 
+        mkdir -p $1
+        ctxt g "Created directory: $1" 
     fi
 }
 
