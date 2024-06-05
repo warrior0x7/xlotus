@@ -1,0 +1,218 @@
+#!/usr/bin/env bash
+
+source ~/.local/lib/xlotus/xlfns
+
+CACHE=$XLOTUS_CACHE/xl-prayer
+CONFIG=$XLOTUS_CFG
+
+chkmk $CACHE
+
+function printHelp () {
+        cat <<-EOF
+Description: 
+    A simple script that prints next prayer and its time
+
+Usage: xl-prayer <Option>
+
+Option: One of the following:
+
+    No Arguments:
+        Prints next prayer.
+
+    -h , --help:
+        Prints this help page.
+
+    -j, --json:
+        Prints next prayer in JSON format.
+
+    -i, --init: <URL>, clip, open
+        <URL> : Downloads webcal from link
+        clip  : Downloads webcal from clipboard
+        open  : Opens source of webcal
+
+Steps to start:
+    1. Open webcal source in browser.
+        $ xl-prayer -i open
+
+    2. Click on the cogwheel at the top right.
+    
+    3. Customize the settings for your needs.
+       (Make sure you set Fajr and Ishaa angles 
+        according to your country)
+
+    4. Click save at the bottom then copy the URL
+       from the blue button or the URL below it.
+
+    5. Copy link and run :
+        $ xl-prayer -i clip
+
+    6. Run the command to print next prayer :
+        $ xl-prayer -j
+
+    Downloaded prayers file is ~/.config/xlotus/allPrayers
+
+Project:
+    This script is a part of xlotus utilities
+    https://github.com/warrior0x7/xlotus
+EOF
+}
+
+function prayerFile () {
+    grep --color=never $1T $CONFIG/allPrayers |\
+        sed 's/^[0-9]\{4\}T//g; s/[0-9]\{2\}Z//g' > $CACHE/$1
+
+    timeZone=`date +"%z"`
+    currentDate=`date +"%Y%m%d"`
+
+    while IFS="" read -r line || [ -n "$line" ]; do 
+        oldTime=`echo $line | awk '{print $1}'`
+
+        if [ "`checkNum $timeZone`" == "int" ]; then
+            newTime=`date -d "$currentDate $oldTime + ${timeZone:2:1} hour" +"%H%M"`
+        else [ "`checkNum $timeZone`" == "-int" ]
+            newTime=`date -d "$currentDate $oldTime ${timeZone:2:1} hours ago" +"%H%M"`
+        fi
+
+        sed -i "s/$oldTime/$newTime/" $CACHE/$1
+    done < $CACHE/$1
+    
+    cat $CACHE/$1 | sort -o $CACHE/$1
+}
+
+function removeOld () {
+    allOld=("`ls $CACHE`")
+    for i in ${allOld[@]};
+    do 
+        if ! [[ $i =~ ^"$1" ]]; then 
+            rm -rf $i
+        fi
+    done
+}
+
+function calculator () {
+
+    prayerTime=`awk 'NR=='$1'{print $1}' $CACHE/$2`
+    summary=`awk 'NR=='$1'{print $2}' $CACHE/$2` 
+    
+    currentYear=`date +"%Y"`
+
+    targetEpoch=`date -d "${currentYear}$2 $prayerTime" +%s` 
+    currentEpoch=`date +'%s'`
+
+    # print name of prayer + its time
+    prayerInfo="$summary `date -d@${targetEpoch} \"+%I:%M %p\"`"
+
+    # only print name of prayer
+    #prayerInfo="$summary" 
+
+    remSec=$((($targetEpoch - $currentEpoch)%60))
+    remMin=$((($targetEpoch - $currentEpoch)/60))
+
+}
+
+function main () {
+    today=`date -u +'%m%d'`
+    removeOld $today
+
+    [ ! -f $CACHE/$today ] && prayerFile $today
+    [ ! -f $CACHE/$today-index ] && echo 1 > $CACHE/$today-index
+
+    position=`cat $CACHE/$today-index`
+
+    calculator $position $today
+
+    max=`cat $CACHE/$today | wc -l`
+
+    if [ $position -ge $max ] && [ $remMin -le 0 ] && [ $remSec -le 0 ]; then
+        remTimeMsg="󰸞"
+        prayerInfo="Done"	
+
+    elif [ $remMin -eq 0 ] && [ $remSec -ge 0 ]; then
+
+        remTimeMsg="${remSec}s"
+
+    elif [ $remMin -le 0 ] && [ $remSec -le 0 ]; then
+
+        while [ $remMin -le 0 ] && [ $remSec -le 0 ] && [ $position -lt $max ]
+        do
+            position=$(($position+1))
+            echo $position > $CACHE/$today-index
+            calculator $position $today
+        done
+
+        if [ $remMin -eq 0 ] && [ $remSec -ge 0 ]; then
+            remTimeMsg=`printf "%02d S" ${remSec}`
+        elif [ $remMin -ge 60 ]; then
+            min=$(($remMin%60))
+            hour=$(($remMin/60)) 
+            remTimeMsg=`printf "%02d:%02d" ${hour} ${min}`
+        else
+            remTimeMsg=`printf "%02d M" ${remMin}`
+        fi
+
+    elif [ $remMin -ge 60 ]; then
+        min=$(($remMin%60))
+        hour=$(($remMin/60)) 
+        remTimeMsg=`printf "%02d:%02d" ${hour} ${min}`
+    else
+        remTimeMsg=`printf "%02d M" ${remMin}`
+    fi
+}
+
+
+case $1 in
+    -h|--help) printHelp ;;
+
+    -j|--json)
+        main
+        jq --null-input -s '{"prayer":"'"$prayerInfo"'", "remaining":"'"$remTimeMsg"'"}'
+        ;;
+
+    -i|--init)
+
+        # Just supply the url from the button in https://prayerwebcal.dsultan.com/
+        # after configuring the settings as first argument and it will write the 
+        # output to the file in ~/.config/xlotus/allPrayers
+
+        if [ "$2" == "clip" ]; then
+            [ -n "$WAYLAND_DISPLAY" ] && url=`wl-paste` || url=`xclip -out -selection c`
+
+            if ! [[ $url =~ ^"webcal://" ]] && ! [[ $url =~ ^"http" ]]; then
+                echo "`ctxt r "Invalid URL in clipboard"`"
+                exit 1
+            fi
+
+        elif [ "$2" == "open" ]; then
+            nohup bash -c "xdg-open \"https://prayerwebcal.dsultan.com/\" &" 2&>/dev/null
+            echo "`ctxt g "A browser should open.\nCustomize the settings and copy the webcal URL then come back here."`"
+            exit 0
+        else
+            url="$2"
+        fi
+
+        if [[ $url =~ ^"webcal://" ]]; then
+            url=`echo $url | sed 's/^webcal/https/'`
+        elif [[ $url =~ ^"http[s]?://" ]]; then
+            url="$url"
+        fi
+
+        if [ -z "$url" ]; then
+            echo -e "`ctxt r "Empty URL\nPlease supply the webcal url as an argument"`"
+        else
+            echo "$url" |\
+                xargs curl -X 'GET' |\
+                grep --color=never -C 1 --no-group-separator "DTEND" |\
+                sed '/DTEND/d; s/:.*Sunrise/:Sunrise/; s/\r//g;' |\
+                awk -F ':' '{print $2}' |\
+                sed 'N;s/\n/\t/g; s/^[0-9]\{4\}//g' > $CONFIG/allPrayers
+
+            echo "`ctxt g "Success!"`"
+        fi
+        ;;
+
+    *) 
+        main
+        echo "prayer: $prayerInfo"
+        echo "remaining: $remTimeMsg"
+        ;;
+esac

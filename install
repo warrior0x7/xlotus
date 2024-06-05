@@ -22,6 +22,7 @@ xl-yt;;;YouTube RSS feed aggregator;;;lib/xlpreview
 xl-rgb;;;Color converter to RGB, Hex or 0-255 index terminal color
 xl-cmd;;;Runner for user-defined commands;;;cfg/cmd
 xl-headd;;;Run commands on headphone jack plug/unplug
+xl-prayer;;;(Islam) Print next prayer and its time
 EOF
 }
 

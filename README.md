@@ -13,6 +13,7 @@ A collection of shell scripts that extends the functionality of my system
 |xl-rgb|Color converter to RGB, Hex or 0-255 index terminal color|
 |xl-cmd|Runner for user-defined commands|
 |xl-headd|Run commands on headphone jack plug/unplug|
+|xl-prayer|(Islam) Print next prayer and its time|
 
 ## Dependencies
 - a terminal with sixel support
@@ -24,6 +25,7 @@ A collection of shell scripts that extends the functionality of my system
 - xclip (X11)
 - wl-clipboard (Wayland)
 - acpid
+- jq
 
 ### Arch Linux
 I personally use `konsole` because it supports both RTL and sixel
@@ -32,11 +34,11 @@ sudo pacman -Sy --needed konsole
 ```
 #### Xorg
 ```Bash
-sudo pacman -Sy --needed fzf chafa bat curl gawk acpid xclip
+sudo pacman -Sy --needed fzf chafa bat curl gawk acpid jq xclip
 ```
 #### Wayland
 ```Bash
-sudo pacman -Sy --needed fzf chafa bat curl gawk acpid wl-clipboard
+sudo pacman -Sy --needed fzf chafa bat curl gawk acpid jq wl-clipboard
 ```
 
 ## Getting started
