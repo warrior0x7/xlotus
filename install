@@ -18,9 +18,9 @@ XLOTUS_LIB=~/.local/lib/xlotus
 # with -s option
 function scriptInfo () {
     cat <<-EOF
-xl-yt;;;YouTube RSS feed aggregator
+xl-yt;;;YouTube RSS feed aggregator;;;lib/xlpreview
 xl-rgb;;;Color converter to RGB, Hex or 0-255 index terminal color
-xl-cmd;;;Runner for user-defined commands
+xl-cmd;;;Runner for user-defined commands;;;cfg/cmd
 xl-headd;;;Run commands on headphone jack plug/unplug
 EOF
 }
@@ -212,13 +212,14 @@ case $opt in
             awk '{ print $1 }'`")
 
         if [ -n "$choices" ]; then
-            for cfg in ${XLOTUS_CFG_ALL[@]}; do
-                main add cfg $cfg
-            done
-            for lib in ${XLOTUS_LIB_ALL[@]}; do
-                main add lib $lib
-            done
+            main add lib xlfns
             for choice in ${choices[@]}; do
+                deps=("`scriptInfo | grep "^$choice;;;" | awk -F ';;;' '{print $3}'`")
+                for dep in ${deps[@]}; do
+                    target=`echo $dep | awk -F '/' '{print $1}'`
+                    script=`echo $dep | awk -F '/' '{print $2}'`
+                    main add $target $script
+                done
                 main add bin $choice
             done
             success
