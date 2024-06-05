@@ -5,19 +5,6 @@ XLOTUS_BIN=~/.local/bin
 XLOTUS_LIB=~/.local/lib/xlotus
 XLOTUS_CACHE=~/.cache/xlotus
 
-# If directory does not exist, make it
-function chkmk () { 
-    if [ ! -d $1 ]; then 
-        mkdir -p $1
-        ctxt g "Created directory: $1" 
-    fi
-}
-
-chkmk d $XLOTUS_CFG
-chkmk d $XLOTUS_BIN
-chkmk d $XLOTUS_LIB
-chkmk d $XLOTUS_CACHE
-
 function fzfcmd { 
     fzf --color=preview-bg:'#282829',pointer:1,prompt:4,hl:4,bg+:'#45403d',fg+:7,hl+:1 \
         --bind 'tab:toggle+up,shift-tab:toggle+down,change:first' \
@@ -77,6 +64,19 @@ function ctxt () {
 
     echo -e "${ctxtBeginSeq}0;3${ctxtColor}m${2}${ctxtResetSeq}"
 }
+
+# If directory does not exist, make it
+function chkmk () { 
+    if [ ! -d $1 ]; then 
+        mkdir -p $1
+        ctxt g "Created directory: $1" 
+    fi
+}
+
+chkmk $XLOTUS_CFG
+chkmk $XLOTUS_BIN
+chkmk $XLOTUS_LIB
+chkmk $XLOTUS_CACHE
 
 function checkNum () {
     if [[ $1 =~ ^[+]?[0-9]+$ ]]; then
