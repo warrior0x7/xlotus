@@ -23,7 +23,7 @@ xl-rgb;;;Color converter to RGB, Hex or 0-255 index terminal color
 xl-cmd;;;Runner for user-defined commands;;;cfg/cmd
 xl-headd;;;Run commands on headphone jack plug/unplug
 xl-prayer;;;(Islam) Print next prayer and its time
-xl-jump;;;Faster cd and file editing;;;cfg/jump/include cfg/jump/exclude
+xl-jump;;;Faster cd and file editing;;;cfg/include cfg/exclude
 EOF
 }
 

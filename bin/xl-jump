@@ -3,7 +3,7 @@
 source ~/.local/lib/xlotus/xlfns
 
 CACHE=$XLOTUS_CACHE
-CONFIG=$XLOTUS_CFG/jump
+CONFIG=$XLOTUS_CFG
 
 chkmk $CONFIG
 
@@ -58,6 +58,8 @@ Configuration
 
         2. Exclude for directories/subdirectories you don't want
            to show while using directories in Include
+
+    Include must have full path
 
 Project:
     This script is one of the xlotus utilities
