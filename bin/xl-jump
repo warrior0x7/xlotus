@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+source ~/.local/lib/xlotus/xlfns
+
+CACHE=$XLOTUS_CACHE
+CONFIG=$XLOTUS_CFG/jump
+
+chkmk $CONFIG
+
+dirInclude=("`cat $CONFIG/include`")
+dirExclude=("`cat $CONFIG/exclude`")
+
+function finder () {
+    if [ "$1" == "f" ]; then
+        for include in ${dirInclude[@]}; do bash -c "fd . $include -c never -t f"; done
+    elif [ "$1" == "d" ]; then
+        for include in ${dirInclude[@]}; do bash -c "fd . $include -c never -t d"; done
+    fi
+}
+
+declare -a sedFilter
+for exclude in ${dirExclude[@]}
+do
+    sedFilter=("${sedFilter[@]}" "\\|$exclude|d")
+done
+
+
+function printHelp () {
+    cat <<-EOF
+Description: 
+    Faster cd and file editing
+
+Usage: xl-jump <Option>
+
+Option: One of the following:
+
+    -h , --help:
+        Prints this help page.
+
+    -j , --jump:
+        Change directory
+
+    -e , --edit:
+        Edit file with your EDITOR
+
+    -i , --init:
+        Initialize the bash aliases
+
+Getting Started:
+    1. Launch the script like this:
+        $ source xl-jump -i
+
+    2. Enter aliases for edit and jump options
+
+Configuration
+    There are 2 files in ~/.config/xlotus/jump :
+        1. Include for directories you want to include
+
+        2. Exclude for directories/subdirectories you don't want
+           to show while using directories in Include
+
+Project:
+    This script is one of the xlotus utilities
+    https://github.com/warrior0x7/xlotus
+EOF
+}
+
+case $1 in
+    -h|--help) printHelp ;;
+
+    -i|--init)
+        if grep -q "source xl-jump --edit" ~/.bashrc; then
+            echo "`ctxt r "Alias already exists for Edit"`"
+        else
+            read -p "Enter alias name for edit: " scEdit
+            if [ -n "$scEdit" ]; then
+                echo "alias $scEdit=\"source xl-jump --edit\"" >> ~/.bashrc
+                echo "`ctxt g "Created alias for edit: $scEdit"`"
+            fi
+        fi
+
+        if grep -q "source xl-jump --jump" ~/.bashrc; then
+            echo "`ctxt r "Alias already exists for Jump"`"
+        else
+            read -p "Enter alias name for jump: " scJump
+            if [ -n "$scJump" ]; then
+                echo "alias $scJump=\"source xl-jump --jump\"" >> ~/.bashrc
+                echo "`ctxt g "Created alias for jump: $scJump"`"
+            fi
+        fi
+
+        source ~/.bashrc
+        ;;
+
+    -e|--edit)
+        files=`finder f | sed -e "$sedFilter" | fzfcmd "edit" --multi`
+        [ -n "$files" ] && $EDITOR $files
+        ;;
+
+    -j|--jump)
+        dir=`finder d | sed -e "$sedFilter" | fzfcmd "cd"`
+        [ -n "$dir" ] && cd $dir
+        ;;
+
+    *)
+        ;;
+esac

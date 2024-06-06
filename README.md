@@ -14,6 +14,7 @@ A collection of shell scripts that extends the functionality of my system
 |xl-cmd|Runner for user-defined commands|
 |xl-headd|Run commands on headphone jack plug/unplug|
 |xl-prayer|(Islam) Print next prayer and its time|
+|xl-jump|Faster cd and file editing with fzf|
 
 ## Dependencies
 - a terminal with sixel support
