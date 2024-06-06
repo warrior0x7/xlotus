@@ -28,7 +28,7 @@ done
 function printHelp () {
     cat <<-EOF
 Description: 
-    Faster cd and file editing
+    Faster cd and file editing with FZF
 
 Usage: xl-jump <Option>
 
