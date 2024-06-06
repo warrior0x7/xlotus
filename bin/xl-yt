@@ -7,10 +7,10 @@ CACHE=$XLOTUS_CACHE/xl-yt
 TMP=$XLOTUS_CACHE/xl-yt/tmp
 IMG=$XLOTUS_CACHE/xl-yt/img
 
-chkmk d $CONFIG
-chkmk d $CACHE
-chkmk d $TMP
-chkmk d $IMG
+chkmk $CONFIG
+chkmk $CACHE
+chkmk $TMP
+chkmk $IMG
 
 [ ! -f $CONFIG/ytsubs ] && touch $CONFIG/ytsubs
 
