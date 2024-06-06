@@ -46,7 +46,7 @@ Getting Started:
     2. Enter aliases for edit and jump options
 
 Configuration
-    There are 2 files in ~/.config/xlotus/jump :
+    There are 2 files in ~/.config/xlotus :
         1. Include for directories you want to include
 
         2. Exclude for directories/subdirectories you don't want
