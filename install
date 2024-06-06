@@ -18,11 +18,12 @@ XLOTUS_LIB=~/.local/lib/xlotus
 # with -s option
 function scriptInfo () {
     cat <<-EOF
-xl-yt;;;YouTube RSS feed aggregator;;;lib/xlpreview
+xl-yt;;;YouTube RSS feed aggregator;;;lib/xlpreview cfg/xlotus.cfg
 xl-rgb;;;Color converter to RGB, Hex or 0-255 index terminal color
 xl-cmd;;;Runner for user-defined commands;;;cfg/cmd
 xl-headd;;;Run commands on headphone jack plug/unplug
 xl-prayer;;;(Islam) Print next prayer and its time
+xl-jump;;;Faster cd and file editing;;;cfg/jump/include cfg/jump/exclude
 EOF
 }
 
@@ -82,7 +83,7 @@ function chkmk () {
 }
 
 # Commands to run with the main function
-function add () { cp $@ ;}
+function add () { cp -r $@ ;}
 function link () { ln -s `pwd`/$@ ;}
 
 # Main function to run for each script
@@ -101,7 +102,7 @@ function main () {
             esac
 
             # Check if specified file exists in this repo
-            if [ ! -f $1/$2 ]; then
+            if [ ! -f $1/$2 ] && [ ! -d $1/$2 ]; then
                 etxt "'$1/$2' does not exist in this repo"
                 # Set has_err to 1 to indicate there's an error
                 # to prevent the success message
@@ -170,9 +171,9 @@ function success () {
 #   PRE-INSTALLATION SETUP
 # ----------------------------------------------
 # Setup directories
-chkmk d $XLOTUS_CFG
-chkmk d $XLOTUS_BIN
-chkmk d $XLOTUS_LIB
+chkmk $XLOTUS_CFG
+chkmk $XLOTUS_BIN
+chkmk $XLOTUS_LIB
 
 # If no arguments provided, use --all
 if [ -z "$1" ]; then
