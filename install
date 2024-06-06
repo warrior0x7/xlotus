@@ -230,7 +230,7 @@ case $opt in
 
     -d|--dev)
         for cfg in ${XLOTUS_CFG_ALL[@]}; do
-            main link cfg $cfg
+            main add cfg $cfg
         done
 
         for lib in ${XLOTUS_LIB_ALL[@]}; do

@@ -2,13 +2,12 @@
 
 source ~/.local/lib/xlotus/xlfns
 
-CACHE=$XLOTUS_CACHE
 CONFIG=$XLOTUS_CFG
 
 chkmk $CONFIG
 
 dirInclude=("`cat $CONFIG/include`")
-dirExclude=("`cat $CONFIG/exclude`")
+dirExclude=("`cat $CONFIG/exclude | sed 's/^/\\\|/g; s/$/|d;/g'`")
 
 function finder () {
     if [ "$1" == "f" ]; then
@@ -17,12 +16,6 @@ function finder () {
         for include in ${dirInclude[@]}; do bash -c "fd . $include -c never -t d"; done
     fi
 }
-
-declare -a sedFilter
-for exclude in ${dirExclude[@]}
-do
-    sedFilter=("${sedFilter[@]}" "\\|$exclude|d")
-done
 
 
 function printHelp () {
@@ -59,7 +52,8 @@ Configuration
         2. Exclude for directories/subdirectories you don't want
            to show while using directories in Include
 
-    Include must have full path
+    Each line in 'include' must have full path
+    Each line in 'exclude' is a sed pattern
 
 Project:
     This script is one of the xlotus utilities
@@ -95,12 +89,12 @@ case $1 in
         ;;
 
     -e|--edit)
-        files=`finder f | sed -e "$sedFilter" | fzfcmd "edit" --multi`
+        files=`finder f | sed "$dirExclude" | fzfcmd "EDIT" --multi`
         [ -n "$files" ] && $EDITOR $files
         ;;
 
     -j|--jump)
-        dir=`finder d | sed -e "$sedFilter" | fzfcmd "cd"`
+        dir=`finder d | sed -e "$dirExclude" | fzfcmd "CD"`
         [ -n "$dir" ] && cd $dir
         ;;
 
