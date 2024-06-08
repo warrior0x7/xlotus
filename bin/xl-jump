@@ -95,7 +95,7 @@ case $1 in
 
     -j|--jump)
         dir=`finder d | sed -e "$dirExclude" | fzfcmd "CD"`
-        [ -n "$dir" ] && cd $dir
+        [ -n "$dir" ] && cd "$dir"
         ;;
 
     *)

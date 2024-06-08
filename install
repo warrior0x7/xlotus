@@ -28,10 +28,10 @@ EOF
 }
 
 # Generate an array of script names from scriptInfo
-XLOTUS_ALL=("`scriptInfo | awk -F ';;;' '{print $1}'`")
+XLOTUS_ALL=("$(scriptInfo | awk -F ';;;' '{print $1}')")
 
-XLOTUS_LIB_ALL=("`ls lib/`")
-XLOTUS_CFG_ALL=("`ls cfg/`")
+XLOTUS_LIB_ALL=("$(ls lib/)")
+XLOTUS_CFG_ALL=("$(ls cfg/)")
 
 # Color text for OK(green), ERR(red) and REM(blue)
 function stxt () { echo -e "\033[0;32m[OK]\033[0m $1" ;}
@@ -76,33 +76,33 @@ EOF
 
 # If directory does not exist, make it
 function chkmk () { 
-    if [ ! -d $1 ]; then 
-        mkdir -p $1
+    if [ ! -d "$1" ]; then 
+        mkdir -p "$1"
         stxt "Created directory: $1" 
     fi
 }
 
 # Commands to run with the main function
-function add () { cp -r $@ ;}
-function link () { ln -s `pwd`/$@ ;}
+function add () { cp -r "$@" ;}
+function link () { ln -s "$(pwd)"/$@ ;}
 
 # Main function to run for each script
 function main () {
     # Command to run (copy or link)
     cmd="$1"
     shift
-    case $1 in
+    case "$1" in
         lib|bin|cfg)
 
             # Set directory of installation
-            case $1 in
+            case "$1" in
                 lib) installDir=$XLOTUS_LIB ;;
                 bin) installDir=$XLOTUS_BIN ;;
                 cfg) installDir=$XLOTUS_CFG ;;
             esac
 
             # Check if specified file exists in this repo
-            if [ ! -f $1/$2 ] && [ ! -d $1/$2 ]; then
+            if [ ! -f "$1"/"$2" ] && [ ! -d "$1"/"$2" ]; then
                 etxt "'$1/$2' does not exist in this repo"
                 # Set has_err to 1 to indicate there's an error
                 # to prevent the success message
@@ -110,8 +110,8 @@ function main () {
             else
                 # if file does not exist in installation
                 # directory
-                if [ ! -f $installDir/$2 ]; then
-                    $cmd $1/$2 $installDir/$2
+                if [ ! -f "$installDir"/"$2" ]; then
+                    $cmd "$1"/"$2" "$installDir"/"$2"
                     if [ "$cmd" == "add" ]; then
                         stxt "Installed '$2' ($1)"
                     elif [ "$cmd" == "link" ]; then
@@ -123,13 +123,13 @@ function main () {
                     # if command is add
                     if [ "$cmd" == "add" ]; then
                         # check filetype
-                        fileType=`file -bi $installDir/$2 | awk -F ';' '{print $1}'`
+                        fileType=$(file -bi "$installDir"/"$2" | awk -F ';' '{print $1}')
 
                         # if filetype is a symlink
                         if [ "$fileType" == "inode/symlink" ]; then
-                            rm $installDir/$2
+                            rm "$installDir/$2"
                             rtxt "'$2' ($1) removed old symlink"
-                            $cmd $1/$2 $installDir/$2
+                            $cmd "$1"/"$2" "$installDir"/"$2"
                             stxt "Installed '$2' ($1)"
                         else
                             stxt "'$2' ($1) already exists ... no need to reinstall"
@@ -137,13 +137,13 @@ function main () {
                     # if command is link
                     elif [ "$cmd" == "link" ]; then
                         # check filetype
-                        fileType=`file -bi $installDir/$2 | awk -F ';' '{print $1}'`
+                        fileType=$(file -bi "$installDir"/"$2" | awk -F ';' '{print $1}')
 
                         # if filetype is a shellscript
                         if [ "$fileType" != "inode/symlink" ]; then
-                            rm $installDir/$2
+                            rm "$installDir/$2"
                             rtxt "'$2' ($1) removed old $1"
-                            $cmd $1/$2 $installDir/$2
+                            $cmd "$1"/"$2" "$installDir"/"$2"
                             stxt "Linked '$2' ($1)"
                         else
                             stxt "'$2' ($1) already linked"
@@ -192,53 +192,53 @@ fi
 # ----------------------------------------------
 case $opt in
     -a|--all)
-        for cfg in ${XLOTUS_CFG_ALL[@]}; do
-            main add cfg $cfg
+        for cfg in "${XLOTUS_CFG_ALL[@]}"; do
+            main add cfg "$cfg"
         done
-        for lib in ${XLOTUS_LIB_ALL[@]}; do
-            main add lib $lib
+        for lib in "${XLOTUS_LIB_ALL[@]}"; do
+            main add lib "$lib"
         done
-        for script in ${XLOTUS_ALL[@]}; do
-            main add bin $script
+        for script in "${XLOTUS_ALL[@]}"; do
+            main add bin "$script"
         done
         success
         ;;
 
     -s|--select)
-        choices=("`scriptInfo |\
+        choices=("$(scriptInfo |\
             awk -F ';;;' '{ printf "%2s %-20s %s\n", " ", $1, $2}' |\
             fzf --multi \
                 --header="Install > " \
                 --bind 'tab:toggle+up,shift-tab:toggle+down,change:first' \
                 --tiebreak=begin |\
-            awk '{ print $1 }'`")
+                awk '{ print $1 }')")
 
-        if [ -n "$choices" ]; then
+        if [ -n "${choices[0]}" ]; then
             main add lib xlfns
-            for choice in ${choices[@]}; do
-                deps=("`scriptInfo | grep "^$choice;;;" | awk -F ';;;' '{print $3}'`")
-                for dep in ${deps[@]}; do
-                    target=`echo $dep | awk -F '/' '{print $1}'`
-                    script=`echo $dep | awk -F '/' '{print $2}'`
-                    main add $target $script
+            for choice in "${choices[@]}"; do
+                deps=("$(scriptInfo | grep "^$choice;;;" | awk -F ';;;' '{print $3}')")
+                for dep in "${deps[@]}"; do
+                    target=$(echo "$dep" | awk -F '/' '{print $1}')
+                    script=$(echo "$dep" | awk -F '/' '{print $2}')
+                    main add "$target" "$script"
                 done
-                main add bin $choice
+                main add bin "$choice"
             done
             success
         fi
         ;;
 
     -d|--dev)
-        for cfg in ${XLOTUS_CFG_ALL[@]}; do
-            main add cfg $cfg
+        for cfg in "${XLOTUS_CFG_ALL[@]}"; do
+            main add cfg "$cfg"
         done
 
-        for lib in ${XLOTUS_LIB_ALL[@]}; do
-            main link lib $lib
+        for lib in "${XLOTUS_LIB_ALL[@]}"; do
+            main link lib "$lib"
         done
 
-        for script in ${XLOTUS_ALL[@]}; do
-            main link bin $script
+        for script in "${XLOTUS_ALL[@]}"; do
+            main link bin "$script"
         done
         success
         ;;

@@ -63,11 +63,11 @@ EOF
 function updater {
         checkNetwork
         if [ -n "`ls -A $TMP 2>/dev/null`" ]; then
-            rm $TMP/*
+            rm "$TMP/*"
         fi
 
         if [ -n "`ls -A $IMG 2>/dev/null`" ]; then
-            rm $IMG/*
+            rm "$IMG/*"
         fi
 
         if [ -n "`cat $CONFIG/ytsubs`" ]; then
