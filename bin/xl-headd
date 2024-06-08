@@ -41,9 +41,9 @@ EOF
 
 case $1 in
     -h|--help) printHelp ;;
-    -e|--edit) $EDITOR $XLOTUS_BIN/xl-headd ;;
+    -e|--edit) $EDITOR "$XLOTUS_BIN"/xl-headd ;;
     *)
-        if [ -z "$1"]; then
+        if [ -z "$1" ]; then
             # --------------------------------------------
             # EDIT CONDITION BELOW
             # --------------------------------------------
