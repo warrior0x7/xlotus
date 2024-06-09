@@ -192,13 +192,13 @@ fi
 # ----------------------------------------------
 case $opt in
     -a|--all)
-        for cfg in "${XLOTUS_CFG_ALL[@]}"; do
+        for cfg in ${XLOTUS_CFG_ALL[@]}; do
             main add cfg "$cfg"
         done
-        for lib in "${XLOTUS_LIB_ALL[@]}"; do
+        for lib in ${XLOTUS_LIB_ALL[@]}; do
             main add lib "$lib"
         done
-        for script in "${XLOTUS_ALL[@]}"; do
+        for script in ${XLOTUS_ALL[@]}; do
             main add bin "$script"
         done
         success
@@ -229,15 +229,15 @@ case $opt in
         ;;
 
     -d|--dev)
-        for cfg in "${XLOTUS_CFG_ALL[@]}"; do
+        for cfg in ${XLOTUS_CFG_ALL[@]}; do
             main add cfg "$cfg"
         done
 
-        for lib in "${XLOTUS_LIB_ALL[@]}"; do
+        for lib in ${XLOTUS_LIB_ALL[@]}; do
             main link lib "$lib"
         done
 
-        for script in "${XLOTUS_ALL[@]}"; do
+        for script in ${XLOTUS_ALL[@]}; do
             main link bin "$script"
         done
         success

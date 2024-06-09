@@ -4,10 +4,10 @@ source ~/.local/lib/xlotus/xlfns
 
 CONFIG=$XLOTUS_CFG
 
-chkmk $CONFIG
+chkmk "$CONFIG"
 
-dirInclude=("`cat $CONFIG/include`")
-dirExclude=("`cat $CONFIG/exclude | sed 's/^/\\\|/g; s/$/|d;/g'`")
+dirInclude=("$(cat "$CONFIG"/include)")
+dirExclude=("$(cat "$CONFIG"/exclude | sed 's/^/\\\|/g; s/$/|d;/g')")
 
 function finder () {
     if [ "$1" == "f" ]; then
@@ -66,22 +66,22 @@ case $1 in
 
     -i|--init)
         if grep -q "source xl-jump --edit" ~/.bashrc; then
-            echo "`ctxt r "Alias already exists for Edit"`"
+            ctxt r "Alias already exists for Edit"
         else
-            read -p "Enter alias name for edit: " scEdit
+            read -r -p "Enter alias name for edit: " scEdit
             if [ -n "$scEdit" ]; then
                 echo "alias $scEdit=\"source xl-jump --edit\"" >> ~/.bashrc
-                echo "`ctxt g "Created alias for edit: $scEdit"`"
+                ctxt g "Created alias for edit: $scEdit"
             fi
         fi
 
         if grep -q "source xl-jump --jump" ~/.bashrc; then
-            echo "`ctxt r "Alias already exists for Jump"`"
+            ctxt r "Alias already exists for Jump"
         else
-            read -p "Enter alias name for jump: " scJump
+            read -r -p "Enter alias name for jump: " scJump
             if [ -n "$scJump" ]; then
                 echo "alias $scJump=\"source xl-jump --jump\"" >> ~/.bashrc
-                echo "`ctxt g "Created alias for jump: $scJump"`"
+                ctxt g "Created alias for jump: $scJump"
             fi
         fi
 
@@ -89,12 +89,12 @@ case $1 in
         ;;
 
     -e|--edit)
-        files=`finder f | sed "$dirExclude" | fzfcmd "EDIT" --multi`
-        [ -n "$files" ] && $EDITOR $files
+        files=$(finder f | sed "${dirExclude[@]}" | fzfcmd "EDIT" --multi)
+        [ -n "$files" ] && $EDITOR "$files"
         ;;
 
     -j|--jump)
-        dir=`finder d | sed -e "$dirExclude" | fzfcmd "CD"`
+        dir=$(finder d | sed -e "${dirExclude[@]}" | fzfcmd "CD")
         [ -n "$dir" ] && cd "$dir"
         ;;
 
