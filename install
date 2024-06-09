@@ -215,9 +215,9 @@ case $opt in
 
         if [ -n "${choices[0]}" ]; then
             main add lib xlfns
-            for choice in "${choices[@]}"; do
+            for choice in ${choices[@]}; do
                 deps=("$(scriptInfo | grep "^$choice;;;" | awk -F ';;;' '{print $3}')")
-                for dep in "${deps[@]}"; do
+                for dep in ${deps[@]}; do
                     target=$(echo "$dep" | awk -F '/' '{print $1}')
                     script=$(echo "$dep" | awk -F '/' '{print $2}')
                     main add "$target" "$script"
