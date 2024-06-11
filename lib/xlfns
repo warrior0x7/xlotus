@@ -142,10 +142,9 @@ function checkColor () {
 }
 
 function checkNetwork () {
-    curl -s https://google.com > /dev/null
-    if [ "$?" -ne 0 ]; then
+    if ! curl -m 5 -s https://google.com > /dev/null; then
         notifier err \
-            "Xl-yt" \
+            "Xlotus Utilities" \
             "No Connection available"
         exit 1
     fi
