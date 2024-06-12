@@ -90,7 +90,6 @@ case $1 in
 
     -e|--edit)
         files=("$(finder f | sed "${dirExclude[@]}" | fzfcmd "EDIT" --multi)")
-        echo ${files[@]}
         [ -n "$files" ] && $EDITOR ${files[@]}
         ;;
 
