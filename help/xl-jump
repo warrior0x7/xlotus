@@ -1,0 +1,35 @@
+Description: 
+    Faster cd and file editing with fzf.
+
+Usage: xl-jump <Option>
+
+Option: One of the following:
+
+    -h , --help:
+        Print this help page.
+
+    -j , --jump:
+        Change directory.
+
+    -e , --edit:
+        Edit a file (or multiple) with your EDITOR.
+
+    -i , --init:
+        Initialize bash aliases.
+
+Init:
+    1. Run this command :
+        source xl-jump -i
+
+    2. Enter names of aliases for edit 
+       and jump respectively.
+
+Configuration
+    There are 2 files in ~/.config/xlotus :
+        1. "include" is for directories you want to include.
+
+        2. "exclude" is for directories/subdirectories you don't want
+           to show from directories in Include.
+
+    Each line in "include" must have full path.
+    Each line in "exclude" is a sed pattern wrapped as \|<PATTERN>|d

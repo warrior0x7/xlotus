@@ -1,0 +1,41 @@
+Description: 
+    Print next prayer and its time.
+
+Usage: xl-prayer <Option>
+
+Option: One of the following:
+
+    No Arguments:
+        Print next prayer in plain text.
+
+    -h , --help:
+        Print this help page.
+
+    -j, --json:
+        Print next prayer in JSON format.
+
+    -i, --init: <URL>, clip, open
+        <URL> : Download webcal from link.
+        clip  : Download webcal from link in clipboard.
+        open  : Opens source of webcal.
+
+Getting started:
+    1. Open webcal source in browser with :
+        xl-prayer -i open
+
+    2. Click on the cogwheel at the top right.
+    
+    3. Customize the settings for your needs.
+       (Select country and make sure you set 
+        Fajr and Ishaa angles accordingly)
+
+    4. Click save at the bottom then copy the URL
+       from the blue button or the URL below it.
+
+    5. Copy link and run :
+        xl-prayer -i clip
+
+    6. Run the command to print next prayer :
+        xl-prayer -j
+
+    Downloaded prayers are inside ~/.config/xlotus/allPrayers

@@ -1,0 +1,34 @@
+Usage: install <Option>
+
+Option: Can be one of the following:
+
+    No Arguments:
+        uses --all
+
+    -h , --help:
+        Print this help page.
+    
+    -s , --select:
+        Select scripts to install.
+
+    -a , --all:
+        Install all scripts.
+
+    -d , --dev:
+        Make symbolic links instead of installing scripts.
+        This is useful for development purposes.
+
+Directories involved:
+
+    XLOTUS_CFG = ~/.config/xlotus
+        Configuration files for xlotus utilities.
+
+    XLOTUS_BIN = ~/.local/bin
+        Directory where scripts are installed/linked.
+
+    XLOTUS_LIB = ~/.local/lib/xlotus
+        Files that get sourced inside scripts.
+        These are common files used among scripts.
+
+    XLOTUS_CACHE = ~/.cache/xlotus
+        Temporary files due to script operations.

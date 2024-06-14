@@ -1,0 +1,28 @@
+Description:
+    Convert color to RGB, Hex or nearest 0-255 terminal index color.
+
+Usage: xl-rgb <Option>
+
+Option: One of the following options:
+
+    -h , --help:
+        Prints this help page.
+
+    --rgb:
+        Specify target as RGB { rgb(r,g,b) }
+
+    --hex:
+        Specify target as Hex color { #RRGGBB }
+
+    --term:
+        Specify target as nearest 0-255 terminal index color { NNN }
+
+Issues:
+    Hex and RGB are converted to nearest terminal index color, meaning
+    that the reverse is not possible.
+    (You cannot convert term back to hex or rgb)
+
+Reading from stdin:
+    You can tell the script to read from stdin by adding a - at the end.
+    Example:
+        echo "#ea6962" | xl-rgb --rgb -
