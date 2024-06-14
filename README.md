@@ -62,4 +62,4 @@ cd xlotus
 ## Support
 |Paypal|Liberapay|
 |--|--|
-[![paypal](assets/paypal.png)](https://www.paypal.me/warrior0x7) | [![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/Warrior0x7/donate)
+[![paypal](assets/paypal.png)](https://www.paypal.me/warrior0x7) | [![Liberapay](assets/liberapay.png)](https://liberapay.com/Warrior0x7/donate)
