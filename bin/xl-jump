@@ -6,8 +6,8 @@ CONFIG=$XLOTUS_CFG
 
 chkmk "$CONFIG"
 
-dirInclude=("$(cat "$CONFIG"/include)")
-dirExclude=("$(cat "$CONFIG"/exclude | sed 's/^/\\\|/g; s/$/|d;/g')")
+dirInclude="$(sed '/\[exclude\]/,/\[include\]/d; /^$/d' "$CONFIG"/jump)"
+dirExclude="$(sed '/\[include\]/,$d; /^$/d; /\[exclude\]/d; s/^/\\\|/g; s/$/|d;/g' "$CONFIG"/jump)"
 
 function finder () {
     if [ "$1" == "f" ]; then
@@ -89,12 +89,12 @@ case $1 in
         ;;
 
     -e|--edit)
-        files=("$(finder f | sed "${dirExclude[@]}" | fzfcmd "EDIT" --multi)")
+        files=("$(finder f | sed "$dirExclude" | fzfcmd "EDIT" --multi)")
         [ -n "$files" ] && $EDITOR ${files[@]}
         ;;
 
     -j|--jump)
-        dir=$(finder d | sed -e "${dirExclude[@]}" | fzfcmd "CD")
+        dir=$(finder d | sed -e "$dirExclude" | fzfcmd "CD")
         [ -n "$dir" ] && cd "$dir"
         ;;
 

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+function fterm () { konsole --notransparency -p tabtitle="floating" -e "$@"; }
+
+case $1 in
+    *)
+        ;;
+esac
