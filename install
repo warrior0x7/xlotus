@@ -21,9 +21,9 @@ function scriptInfo () {
 xl-yt;;;YouTube RSS feed aggregator;;;lib/xlpreview cfg/xlotus.cfg
 xl-rgb;;;Color converter to RGB, Hex or 0-255 index terminal color
 xl-cmd;;;Runner for user-defined commands;;;cfg/cmd
-xl-headd;;;Run commands on headphone jack plug/unplug
+xl-daemon;;;Run daemons in the background;;;cfg/daemon/*
 xl-prayer;;;(Islam) Print next prayer and its time
-xl-jump;;;Faster cd and file editing;;;cfg/include cfg/exclude
+xl-jump;;;Faster cd and file editing;;;cfg/jump
 EOF
 }
 
@@ -219,8 +219,10 @@ case $opt in
                 deps=("$(scriptInfo | grep "^$choice;;;" | awk -F ';;;' '{print $3}')")
                 for dep in ${deps[@]}; do
                     target=$(echo "$dep" | awk -F '/' '{print $1}')
-                    script=$(echo "$dep" | awk -F '/' '{print $2}')
-                    main add "$target" "$script"
+                    file=$(echo "$dep" | cut -d/ -f2-)
+                    dir=$(echo "$file" | awk -F '/' 'BEGIN{OFS="/"};NF{NF-=1};1')
+                    [ -n "$dir" ] && mkdir -p "$XLOTUS_CFG"/"$dir"
+                    main add "$target" "$file"
                 done
                 main add bin "$choice"
             done
