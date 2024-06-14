@@ -60,5 +60,6 @@ cd xlotus
 ```
 
 ## Support
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/warrior0x7) | [![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/Warrior0x7/donate)
+|Paypal|Liberapay|
 |--|--|
+[![paypal](assets/paypal.png)](https://www.paypal.me/warrior0x7) | [![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/Warrior0x7/donate)
