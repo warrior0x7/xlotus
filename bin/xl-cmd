@@ -5,33 +5,8 @@ source ~/.local/lib/xlotus/xlfns
 CONFIG=$XLOTUS_CFG
 
 function printHelp () {
-    cat <<-EOF
-Description: 
-    A simple runner for user-defined commands.
-
-Usage: xl-cmd <Option>
-
-Option: 
-
-    -h , --help:
-        Prints this help page.
-
-Configuration:
-    Custom commands are added in ~/.config/xlotus/cmd
-
-    Syntax: <ICON>;<NAME>;<COMMAND>
-
-    <COMMAND> can be preceded by:
-        & => Run command asynchronously
-        [i] => Run interactively (Do not exit after execution)
-
-    You also don't need full path for commands that are 
-    part of xlotus.
-
-Project:
-    This script is a part of xlotus utilities
-    https://github.com/warrior0x7/xlotus
-EOF
+    cat $XLOTUS_HELP/xl-cmd
+    cat $XLOTUS_HELP/footer
 }
 
 case $1 in

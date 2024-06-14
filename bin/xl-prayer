@@ -8,53 +8,8 @@ CONFIG=$XLOTUS_CFG
 chkmk "$CACHE"
 
 function printHelp () {
-        cat <<-EOF
-Description: 
-    A simple script that prints next prayer and its time
-
-Usage: xl-prayer <Option>
-
-Option: One of the following:
-
-    No Arguments:
-        Prints next prayer.
-
-    -h , --help:
-        Prints this help page.
-
-    -j, --json:
-        Prints next prayer in JSON format.
-
-    -i, --init: <URL>, clip, open
-        <URL> : Downloads webcal from link
-        clip  : Downloads webcal from clipboard
-        open  : Opens source of webcal
-
-Steps to start:
-    1. Open webcal source in browser.
-        $ xl-prayer -i open
-
-    2. Click on the cogwheel at the top right.
-    
-    3. Customize the settings for your needs.
-       (Make sure you set Fajr and Ishaa angles 
-        according to your country)
-
-    4. Click save at the bottom then copy the URL
-       from the blue button or the URL below it.
-
-    5. Copy link and run :
-        $ xl-prayer -i clip
-
-    6. Run the command to print next prayer :
-        $ xl-prayer -j
-
-    Downloaded prayers file is ~/.config/xlotus/allPrayers
-
-Project:
-    This script is a part of xlotus utilities
-    https://github.com/warrior0x7/xlotus
-EOF
+    cat $XLOTUS_HELP/xl-prayer
+    cat $XLOTUS_HELP/footer
 }
 
 function prayerFile () {

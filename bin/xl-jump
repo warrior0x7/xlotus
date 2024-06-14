@@ -17,48 +17,9 @@ function finder () {
     fi
 }
 
-
 function printHelp () {
-    cat <<-EOF
-Description: 
-    Faster cd and file editing with FZF
-
-Usage: xl-jump <Option>
-
-Option: One of the following:
-
-    -h , --help:
-        Prints this help page.
-
-    -j , --jump:
-        Change directory
-
-    -e , --edit:
-        Edit file with your EDITOR
-
-    -i , --init:
-        Initialize the bash aliases
-
-Getting Started:
-    1. Launch the script like this:
-        $ source xl-jump -i
-
-    2. Enter aliases for edit and jump options
-
-Configuration
-    There are 2 files in ~/.config/xlotus :
-        1. Include for directories you want to include
-
-        2. Exclude for directories/subdirectories you don't want
-           to show while using directories in Include
-
-    Each line in 'include' must have full path
-    Each line in 'exclude' is a sed pattern
-
-Project:
-    This script is one of the xlotus utilities
-    https://github.com/warrior0x7/xlotus
-EOF
+    cat $XLOTUS_HELP/xl-jump
+    cat $XLOTUS_HELP/footer
 }
 
 case $1 in

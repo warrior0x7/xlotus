@@ -6,6 +6,7 @@
 XLOTUS_CFG=~/.config/xlotus
 XLOTUS_BIN=~/.local/bin
 XLOTUS_LIB=~/.local/lib/xlotus
+XLOTUS_HELP=~/.local/share/xlotus/help
 # ----------------------------------------------
 # ----------------------------------------------
 
@@ -38,42 +39,6 @@ function stxt () { echo -e "\033[0;32m[OK]\033[0m $1" ;}
 function etxt () { echo -e "\033[0;31m[ERR] $1\033[0m" ;}
 function rtxt () { echo -e "\033[0;34m[REM] $1\033[0m" ;}
 
-# Help page
-function printHelp () {
-    cat <<-EOF
-Usage: install <Option>
-
-Option: Can be one of the following:
-
-    -h , --help:
-        Shows this help page.
-    
-    -s , --select:
-        Select scripts to install.
-
-    -a , --all:
-        Install all scripts.
-
-    -d , --dev:
-        Make symbolic links instead of installing scripts.
-        This is useful for development purposes.
-
-Directories involved:
-
-    XLOTUS_CFG = ~/.config/xlotus
-        Configuration files for xlotus utilities
-
-    XLOTUS_BIN = ~/.local/bin
-        Directory where scripts are installed/linked to
-
-    XLOTUS_LIB = ~/.local/lib/xlotus
-        Files that gets sourced inside scripts
-
-    XLOTUS_CACHE = ~/.cache/xlotus
-        Cache for scripts
-EOF
-}
-
 # If directory does not exist, make it
 function chkmk () { 
     if [ ! -d "$1" ]; then 
@@ -86,7 +51,7 @@ function chkmk () {
 function add () { cp -r "$@" ;}
 function link () { ln -s "$(pwd)"/$@ ;}
 
-# Main function to run for each script
+# Main function to run for each file
 function main () {
     # Command to run (copy or link)
     cmd="$1"
@@ -97,7 +62,16 @@ function main () {
             # Set directory of installation
             case "$1" in
                 lib) installDir=$XLOTUS_LIB ;;
-                bin) installDir=$XLOTUS_BIN ;;
+                bin) 
+                    installDir=$XLOTUS_BIN 
+                    # add help page
+                    if [ ! -f "$XLOTUS_HELP"/"$2" ]; then 
+                        $cmd help/"$2" "$XLOTUS_HELP"/"$2"
+                    else
+                        rm  $XLOTUS_HELP/"$2"
+                        $cmd help/"$2" "$XLOTUS_HELP"/"$2"
+                    fi
+                    ;;
                 cfg) installDir=$XLOTUS_CFG ;;
             esac
 
@@ -108,45 +82,42 @@ function main () {
                 # to prevent the success message
                 has_err=1
             else
-                # if file does not exist in installation
-                # directory
-                if [ ! -f "$installDir"/"$2" ]; then
+                # if file does not exist in installDir
+                if [ ! -f "$installDir"/"$2" ] && [ ! -d "$installDir"/"$2" ]; then
                     $cmd "$1"/"$2" "$installDir"/"$2"
                     if [ "$cmd" == "add" ]; then
                         stxt "Installed '$2' ($1)"
                     elif [ "$cmd" == "link" ]; then
                         stxt "Linked '$2' ($1)"
                     fi
-                else
-                    # if file does not exist in installDir
+                elif [ -f "$installDir"/"$2" ]; then
+                    # if file exists in installDir
                     #
+                    # check filetype
+                    fileType=$(file -bi "$installDir"/"$2" | awk -F ';' '{print $1}')
+
                     # if command is add
                     if [ "$cmd" == "add" ]; then
-                        # check filetype
-                        fileType=$(file -bi "$installDir"/"$2" | awk -F ';' '{print $1}')
-
                         # if filetype is a symlink
                         if [ "$fileType" == "inode/symlink" ]; then
                             rm "$installDir/$2"
-                            rtxt "'$2' ($1) removed old symlink"
+                            rm "$XLOTUS_HELP"/"$2"
+                            rtxt "($1) '$2' removed old symlink"
                             $cmd "$1"/"$2" "$installDir"/"$2"
                             stxt "Installed '$2' ($1)"
                         else
-                            stxt "'$2' ($1) already exists ... no need to reinstall"
+                            stxt "($1) '$2' already exists"
                         fi
                     # if command is link
                     elif [ "$cmd" == "link" ]; then
-                        # check filetype
-                        fileType=$(file -bi "$installDir"/"$2" | awk -F ';' '{print $1}')
-
-                        # if filetype is a shellscript
+                        # if filetype is not a link
                         if [ "$fileType" != "inode/symlink" ]; then
                             rm "$installDir/$2"
-                            rtxt "'$2' ($1) removed old $1"
+                            rtxt "($1) '$2' removed old $1"
                             $cmd "$1"/"$2" "$installDir"/"$2"
                             stxt "Linked '$2' ($1)"
                         else
-                            stxt "'$2' ($1) already linked"
+                            stxt "($1) '$2' already linked"
                         fi
                     fi
                 fi
@@ -174,6 +145,7 @@ function success () {
 chkmk $XLOTUS_CFG
 chkmk $XLOTUS_BIN
 chkmk $XLOTUS_LIB
+chkmk $XLOTUS_HELP
 
 # If no arguments provided, use --all
 if [ -z "$1" ]; then
@@ -201,6 +173,15 @@ case $opt in
         for script in ${XLOTUS_ALL[@]}; do
             main add bin "$script"
         done
+        if [ ! -f "$XLOTUS_HELP"/footer ]; then 
+            cp help/footer "$XLOTUS_HELP"/footer
+        else
+            fileType=$(file -bi "$XLOTUS_HELP"/footer | awk -F ';' '{print $1}')
+            if [ "$fileType" == "inode/symlink" ]; then
+                rm  $XLOTUS_HELP/footer
+                cp help/footer "$XLOTUS_HELP"/footer
+            fi
+        fi
         success
         ;;
 
@@ -226,6 +207,15 @@ case $opt in
                 done
                 main add bin "$choice"
             done
+            if [ ! -f "$XLOTUS_HELP"/footer ]; then 
+                cp help/footer "$XLOTUS_HELP"/footer
+            else
+                fileType=$(file -bi "$XLOTUS_HELP"/footer | awk -F ';' '{print $1}')
+                if [ "$fileType" == "inode/symlink" ]; then
+                    rm  $XLOTUS_HELP/footer
+                    cp help/footer "$XLOTUS_HELP"/footer
+                fi
+            fi
             success
         fi
         ;;
@@ -242,9 +232,31 @@ case $opt in
         for script in ${XLOTUS_ALL[@]}; do
             main link bin "$script"
         done
+        
+        if [ ! -f "$XLOTUS_HELP"/footer ]; then 
+            link help/footer "$XLOTUS_HELP"/footer
+        else
+            fileType=$(file -bi "$XLOTUS_HELP"/footer | awk -F ';' '{print $1}')
+            if [ "$fileType" != "inode/symlink" ]; then
+                rm  $XLOTUS_HELP/footer
+                link help/footer "$XLOTUS_HELP"/footer
+            fi
+        fi
+
         success
         ;;
 
-    -h|--help) printHelp ;;
+    -h|--help)
+        if [ -z "$2" ]; then
+            cat help/install
+        else
+            if [ -f help/"$2" ]; then
+                cat help/"$2"
+            else
+                etxt "Help page not found"
+            fi
+        fi
+        ;;
+
     *) etxt "Invalid argument: $1" ;;
 esac

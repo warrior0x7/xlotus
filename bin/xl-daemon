@@ -7,23 +7,8 @@
 CONFIG=$XLOTUS_CFG
 
 function printHelp () {
-    cat <<-EOF
-Description:
-    A daemon that runs commands in the background.
-
-Usage: xl-daemon <Option>
-       
-       You should add this to your autostart script
-
-Option:
-
-    -h , --help:
-        Prints this help page.
-
-Project:
-    This script is a part of xlotus utilities
-    https://github.com/warrior0x7/xlotus
-EOF
+    cat $XLOTUS_HELP/xl-daemon
+    cat $XLOTUS_HELP/footer
 }
 
 case $1 in
