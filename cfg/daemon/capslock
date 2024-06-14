@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+. ~/.local/lib/xlotus/xlfns
+
+toggle=0
+keyd monitor | stdbuf -o0 grep --color=never "capslock down" | while IFS= read -r line;
+do
+    if [[ "$line" =~ "capslock down"$ ]]; then
+        if [ "$toggle" -eq 0 ]; then
+            notifier normal \
+                "capslock-enabled-symbolic" \
+                "Capslock (xl-daemon)" \
+                "Capslock enabled"
+            toggle=1
+        elif [ "$toggle" -eq 1 ]; then
+            notifier normal \
+                "capslock-disabled-symbolic" \
+                "Capslock (xl-daemon)" \
+                "Capslock disabled"
+            toggle=0
+        fi
+    fi
+done

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# 
+# Credit : https://askubuntu.com/a/1284966
+
+. ~/.local/lib/xlotus/xlfns
+
+CONFIG=$XLOTUS_CFG
+
+function printHelp () {
+    cat <<-EOF
+Description:
+    A daemon that runs commands in the background.
+
+Usage: xl-daemon <Option>
+       
+       You should add this to your autostart script
+
+Option:
+
+    -h , --help:
+        Prints this help page.
+
+Project:
+    This script is a part of xlotus utilities
+    https://github.com/warrior0x7/xlotus
+EOF
+}
+
+case $1 in
+    -h|--help) printHelp ;;
+    *)
+        for daemon in "$CONFIG"/daemon/*
+        do
+            bash -c "nohup bash -c '$daemon &' 2&>/dev/null"
+        done
+        ;;
+esac

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+. ~/.local/lib/xlotus/xlfns
+
+if [ -z "$1" ]; then
+    # --------------------------------------------
+    # CONFIGURATION
+    # --------------------------------------------
+    # 1. Run acpi_listen.
+    # 2. Plug then unplug your headphones to see
+    #    outputted lines.
+    # 3. Edit the if/elif/else statement to run the commands
+    #    you want.
+
+    acpi_listen | while IFS= read -r line;
+    do
+        if [ "$line" = "jack/headphone HEADPHONE plug" ]; then
+            notifier normal \
+                "audio-headphones" \
+                "Headphone (xl-daemon)" \
+                "Headphones plugged in"
+
+        elif [ "$line" = "jack/headphone HEADPHONE unplug" ]; then
+            notifier normal \
+                "audio-speakers" \
+                "Headphone (xl-daemon)" \
+                "Headphones unplugged"
+        fi
+    done
+fi
