@@ -6,7 +6,7 @@ Usage: xl-rgb <Option>
 Option: One of the following options:
 
     -h , --help:
-        Prints this help page.
+        Print this help page.
 
     --rgb:
         Specify target as RGB { rgb(r,g,b) }

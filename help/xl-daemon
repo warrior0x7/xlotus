@@ -6,4 +6,4 @@ Usage: xl-daemon <Option>
 Option:
 
     -h , --help:
-        Prints this help page.
+        Print this help page.

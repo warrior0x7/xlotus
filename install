@@ -25,6 +25,7 @@ xl-cmd;;;Runner for user-defined commands;;;cfg/cmd
 xl-daemon;;;Run daemons in the background;;;cfg/daemon/*
 xl-prayer;;;(Islam) Print next prayer and its time
 xl-jump;;;Faster cd and file editing;;;cfg/jump
+xl-run;;;Execute programs from PATH;;;
 EOF
 }
 

@@ -6,7 +6,7 @@ Usage: xl-cmd <Option>
 Option: 
 
     -h , --help:
-        Prints this help page.
+        Print this help page.
 
 Configuration:
     Custom commands are added inside ~/.config/xlotus/cmd

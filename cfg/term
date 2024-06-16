@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 
-function fterm () { konsole --notransparency -p tabtitle="floating" -e "$@"; }
+. ~/.local/lib/xlotus/xlfns
+
+BIN=$XLOTUS_BIN
+
+function fterm () { konsole --notransparency -p tabtitle="Floating" -e "$@"; }
 
 case $1 in
+    run) fterm $BIN/xl-run ;; 
+    cmd) fterm $BIN/xl-cmd ;;
     *)
         ;;
 esac

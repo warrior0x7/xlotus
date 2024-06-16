@@ -1,9 +1,7 @@
 [exclude]
-
-\|/\.git|d
+/\.git
 
 
 [include]
-
 ~/.config
 ~/.local
