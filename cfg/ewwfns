@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+eww_pomo () {
+    case $1 in 
+        reset)
+            [ -f $CACHE/pomo/"break" ] && rm $CACHE/pomo/"break"
+            [[ $1 == "start" ]] && eww update pomo_pause=false
+            eww update pomo_icon="󱎫"
+            eww update pomo_break=false
+            eww update rev_pomo=false
+            ;;
+
+        break)
+            eww update pomo_icon=""
+            eww update pomo_break=true
+            touch $CACHE/pomo/"break"
+            notifier normal \
+                "folder-games" \
+                "Pomo" \
+                "Started break"
+            ;;
+
+        work)
+            eww update pomo_icon="󱎫"
+            eww update pomo_break=false
+            rm $CACHE/pomo/"break"
+            notifier normal \
+                "fcitx-handwriting-active" \
+                "Pomo" \
+                "Started working session"
+            ;;
+
+        pause) eww update pomo_pause=true ;;
+        resume) eww update pomo_pause=false ;;
+        stop) eww update rev_pomo=false ;;
+        run) eww update rev_pomo=true ;;
+    esac
+}
