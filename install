@@ -23,7 +23,7 @@ etxt () { echo -e "\033[0;31m[ERR] $1\033[0m" ;}
 rtxt () { echo -e "\033[0;34m[REM] $1\033[0m" ;}
 
 # If directory does not exist, make it
-function chkmk () { 
+chkmk () { 
     if [ ! -d "$1" ]; then 
         mkdir -p "$1"
         stxt "Created directory: $1" 
@@ -31,17 +31,16 @@ function chkmk () {
 }
 
 # Commands to run with the main function
-function add () { cp -r "$@" ;}
-function link () { ln -s "$(pwd)"/$@ ;}
+add () { cp -r "$@" ;}
+link () { ln -s "$(pwd)"/$@ ;}
 
 # Main function to run for each file
-function main () {
+main () {
     # Command to run (copy or link)
     cmd="$1"
     shift
     case "$1" in
         lib|bin|cfg)
-
             # Set directory of installation
             case "$1" in
                 lib) installDir=$XLOTUS_LIB ;;
@@ -93,7 +92,7 @@ function main () {
                         fi
                     # if command is link
                     elif [ "$cmd" == "link" ]; then
-                        # if filetype is not a link
+                        # if filetype is not a symlink
                         if [ "$fileType" != "inode/symlink" ]; then
                             rm "$installDir/$2"
                             rtxt "($1) '$2' removed old $1"
@@ -110,10 +109,20 @@ function main () {
 }
 
 # Message to print when installation is a success.
-function success () {
+success () {
     if [ "$has_err" != "1" ]; then
         echo -e "\n\033[0;32mInstallation was a success!\033[0m"
         echo -e "\nDon't forget to add \033[0;32m\$HOME/.local/bin\033[0m to your PATH variable"
+    fi
+}
+
+# Generate help page footer
+footer () {
+    if [ ! -f "$XLOTUS_HELP"/footer ]; then 
+        $1 help/footer "$XLOTUS_HELP"/footer
+    else
+        rm  $XLOTUS_HELP/footer
+        $1 help/footer "$XLOTUS_HELP"/footer
     fi
 }
 # ----------------------------------------------
@@ -153,21 +162,16 @@ case $opt in
         for cfg in ${XLOTUS_ALL_CFG[@]}; do
             main add cfg "$cfg"
         done
+
         for lib in ${XLOTUS_ALL_LIB[@]}; do
             main add lib "$lib"
         done
+
         for script in ${XLOTUS_ALL_BIN[@]}; do
             main add bin "$script"
         done
-        if [ ! -f "$XLOTUS_HELP"/footer ]; then 
-            cp help/footer "$XLOTUS_HELP"/footer
-        else
-            fileType=$(file -bi "$XLOTUS_HELP"/footer | awk -F ';' '{print $1}')
-            if [ "$fileType" == "inode/symlink" ]; then
-                rm  $XLOTUS_HELP/footer
-                cp help/footer "$XLOTUS_HELP"/footer
-            fi
-        fi
+
+        footer add
         success
         ;;
 
@@ -183,17 +187,8 @@ case $opt in
         for script in ${XLOTUS_ALL_BIN[@]}; do
             main link bin "$script"
         done
-        
-        if [ ! -f "$XLOTUS_HELP"/footer ]; then 
-            link help/footer "$XLOTUS_HELP"/footer
-        else
-            fileType=$(file -bi "$XLOTUS_HELP"/footer | awk -F ';' '{print $1}')
-            if [ "$fileType" != "inode/symlink" ]; then
-                rm  $XLOTUS_HELP/footer
-                link help/footer "$XLOTUS_HELP"/footer
-            fi
-        fi
 
+        footer link
         success
         ;;
 

@@ -30,4 +30,4 @@ Directories involved:
         Temporary files of script operations.
 
     XLOTUS_HELP = ~/.local/share/xlotus/help
-        Help pages
+        Help pages.
