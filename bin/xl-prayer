@@ -2,14 +2,14 @@
 
 source "$HOME/.local/lib/xlotus/xlfns"
 
-CACHE=$XLOTUS_CACHE/xl-prayer
-CONFIG=$XLOTUS_CFG
+CACHE="$XLOTUS_CACHE"/xl-prayer
+CONFIG="$XLOTUS_CFG"
 
 chkmk "$CACHE"
 
 function printHelp () {
-    cat $XLOTUS_HELP/xl-prayer
-    cat $XLOTUS_HELP/footer
+    cat "$XLOTUS_HELP"/xl-prayer
+    cat "$XLOTUS_HELP"/footer
 }
 
 function prayerFile () {
@@ -37,12 +37,13 @@ function prayerFile () {
             sed -i "s/$oldTime/$newTime/" "$CACHE"/"$1"
         done < "$CACHE"/"$1"
         
-        cat "$CACHE"/"$1" | sort -o "$CACHE"/"$1"
+        sort -o "$CACHE"/tmpsort < "$CACHE"/"$1"
+        mv "$CACHE"/tmpsort "$CACHE"/"$1"
     fi
 }
 
 function removeOld () {
-    allOld=("$(ls "$CACHE")")
+    allOld=($(ls "$CACHE"))
     for i in "${allOld[@]}";
     do 
         if ! [[ $i =~ ^"$1" ]]; then 
@@ -83,7 +84,7 @@ function main () {
 
     calculator "$position" "$today"
 
-    max=$(cat "$CACHE"/"$today" | wc -l)
+    max=$(wc -l < "$CACHE"/"$today")
 
     if [ "$position" -ge "$max" ] && [ $remMin -le 0 ] && [ $remSec -le 0 ]; then
         remTimeMsg="󰸞"
@@ -153,7 +154,7 @@ case $1 in
         fi
 
         if [[ $url =~ ^"webcal://" ]]; then
-            url=$(echo "$url" | sed 's/^webcal/https/')
+            url="${url/webcal/https}"
         fi
 
         if [ -z "$url" ]; then
