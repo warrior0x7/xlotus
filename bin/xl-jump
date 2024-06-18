@@ -2,7 +2,7 @@
 
 . "$HOME/.local/lib/xlotus/xlfns"
 
-CONFIG=$XLOTUS_CFG
+CONFIG="$XLOTUS_CFG"
 
 chkmk "$CONFIG"
 
@@ -18,8 +18,8 @@ function finder () {
 }
 
 function printHelp () {
-    cat $XLOTUS_HELP/xl-jump
-    cat $XLOTUS_HELP/footer
+    cat "$XLOTUS_HELP"/xl-jump
+    cat "$XLOTUS_HELP"/footer
 }
 
 case $1 in
