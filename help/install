@@ -8,9 +8,6 @@ Option: Can be one of the following:
     -h , --help:
         Print this help page.
     
-    -s , --select:
-        Select scripts to install.
-
     -a , --all:
         Install all scripts.
 

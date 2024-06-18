@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ~/.local/lib/xlotus/xlfns
+. "$HOME/.local/lib/xlotus/xlfns"
 
 CONFIG=$XLOTUS_CFG
 

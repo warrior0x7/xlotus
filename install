@@ -3,11 +3,10 @@
 # ----------------------------------------------
 #   VARIABLES
 # ----------------------------------------------
-XLOTUS_CFG=~/.config/xlotus
-XLOTUS_BIN=~/.local/bin
-XLOTUS_LIB=~/.local/lib/xlotus
-XLOTUS_HELP=~/.local/share/xlotus/help
-# ----------------------------------------------
+XLOTUS_CFG="$HOME/.config/xlotus"
+XLOTUS_BIN="$HOME/.local/bin"
+XLOTUS_LIB="$HOME/.local/lib/xlotus"
+XLOTUS_HELP="$HOME/.local/share/xlotus/help"
 # ----------------------------------------------
 
 
@@ -15,20 +14,6 @@ XLOTUS_HELP=~/.local/share/xlotus/help
 # ----------------------------------------------
 #   FUNCTIONS
 # ----------------------------------------------
-# info to display when selecting scripts 
-# with -s option
-function scriptInfo () {
-    cat <<-EOF
-xl-yt;;;YouTube RSS feed aggregator;;;lib/xlpreview cfg/xlotus.cfg
-xl-rgb;;;Color converter to RGB, Hex or 0-255 index terminal color
-xl-cmd;;;Runner for user-defined commands;;;cfg/cmd
-xl-daemon;;;Run daemons in the background;;;cfg/daemon/*
-xl-prayer;;;(Islam) Print next prayer and its time
-xl-jump;;;Faster cd and file editing;;;cfg/jump
-xl-run;;;Execute programs from PATH;;;
-EOF
-}
-
 # Generate an array of script names from scriptInfo
 XLOTUS_ALL=("$(scriptInfo | awk -F ';;;' '{print $1}')")
 
@@ -135,7 +120,6 @@ function success () {
     fi
 }
 # ----------------------------------------------
-# ----------------------------------------------
 
 
 
@@ -155,7 +139,6 @@ if [ -z "$1" ]; then
 else
     opt="$1"
 fi
-# ----------------------------------------------
 # ----------------------------------------------
 
 
@@ -184,41 +167,6 @@ case $opt in
             fi
         fi
         success
-        ;;
-
-    -s|--select)
-        choices=("$(scriptInfo |\
-            awk -F ';;;' '{ printf "%2s %-20s %s\n", " ", $1, $2}' |\
-            fzf --multi \
-                --header="Install > " \
-                --bind 'tab:toggle+up,shift-tab:toggle+down,change:first' \
-                --tiebreak=begin |\
-                awk '{ print $1 }')")
-
-        if [ -n "${choices[0]}" ]; then
-            main add lib xlfns
-            for choice in ${choices[@]}; do
-                deps=("$(scriptInfo | grep "^$choice;;;" | awk -F ';;;' '{print $3}')")
-                for dep in ${deps[@]}; do
-                    target=$(echo "$dep" | awk -F '/' '{print $1}')
-                    file=$(echo "$dep" | cut -d/ -f2-)
-                    dir=$(echo "$file" | awk -F '/' 'BEGIN{OFS="/"};NF{NF-=1};1')
-                    [ -n "$dir" ] && mkdir -p "$XLOTUS_CFG"/"$dir"
-                    main add "$target" "$file"
-                done
-                main add bin "$choice"
-            done
-            if [ ! -f "$XLOTUS_HELP"/footer ]; then 
-                cp help/footer "$XLOTUS_HELP"/footer
-            else
-                fileType=$(file -bi "$XLOTUS_HELP"/footer | awk -F ';' '{print $1}')
-                if [ "$fileType" == "inode/symlink" ]; then
-                    rm  $XLOTUS_HELP/footer
-                    cp help/footer "$XLOTUS_HELP"/footer
-                fi
-            fi
-            success
-        fi
         ;;
 
     -d|--dev)

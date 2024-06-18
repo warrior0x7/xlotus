@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-source ~/.local/lib/xlotus/xlfns
+. "$HOME/.local/lib/xlotus/xlfns"
 
-CONFIG=$XLOTUS_CFG
-CACHE=$XLOTUS_CACHE/xl-yt
-TMP=$XLOTUS_CACHE/xl-yt/tmp
-IMG=$XLOTUS_CACHE/xl-yt/img
+CONFIG="$XLOTUS_CFG"
+CACHE="$XLOTUS_CACHE/xl-yt"
+TMP="$XLOTUS_CACHE/xl-yt/tmp"
+IMG="$XLOTUS_CACHE/xl-yt/img"
 
 function printHelp () {
-    cat $XLOTUS_HELP/xl-yt
-    cat $XLOTUS_HELP/footer
+    cat "$XLOTUS_HELP/xl-yt"
+    cat "$XLOTUS_HELP/footer"
 }
 
 chkmk "$CONFIG"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-. ~/.local/lib/xlotus/xlfns
+. "$HOME/.local/lib/xlotus/xlfns"
 
 function printHelp () {
     cat $XLOTUS_HELP/xl-rgb

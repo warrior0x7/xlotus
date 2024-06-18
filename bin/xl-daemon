@@ -2,7 +2,7 @@
 # 
 # Credit : https://askubuntu.com/a/1284966
 
-. ~/.local/lib/xlotus/xlfns
+. "$HOME/.local/lib/xlotus/xlfns"
 
 CONFIG=$XLOTUS_CFG
 

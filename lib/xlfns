@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-XLOTUS_CFG=~/.config/xlotus
-XLOTUS_BIN=~/.local/bin
-XLOTUS_LIB=~/.local/lib/xlotus
-XLOTUS_CACHE=~/.cache/xlotus
-XLOTUS_HELP=~/.local/share/xlotus/help
+XLOTUS_CFG="$HOME/.config/xlotus"
+XLOTUS_BIN="$HOME/.local/bin"
+XLOTUS_LIB="$HOME/.local/lib/xlotus"
+XLOTUS_CACHE="$HOME/.cache/xlotus"
+XLOTUS_HELP="$HOME/.local/share/xlotus/help"
 
 function fzfcmd { 
     fzf --color=preview-bg:'#282829',pointer:1,prompt:4,hl:4,bg+:'#45403d',fg+:7,hl+:1 \

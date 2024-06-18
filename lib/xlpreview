@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-source ~/.local/lib/xlotus/xlfns
+. "$HOME/.local/lib/xlotus/xlfns"
 
 case $1 in
     clip)

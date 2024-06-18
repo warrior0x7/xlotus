@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ~/.local/lib/xlotus/xlfns
+source "$HOME/.local/lib/xlotus/xlfns"
 
 CACHE=$XLOTUS_CACHE/xl-prayer
 CONFIG=$XLOTUS_CFG
