@@ -3,7 +3,7 @@ Usage: install <Option>
 Option: Can be one of the following:
 
     No Arguments:
-        uses --all
+        Treated as --all
 
     -h , --help:
         Print this help page.
@@ -18,14 +18,16 @@ Option: Can be one of the following:
 Directories involved:
 
     XLOTUS_CFG = ~/.config/xlotus
-        Configuration files for xlotus utilities.
+        Configuration files.
 
     XLOTUS_BIN = ~/.local/bin
-        Directory where scripts are installed/linked.
+        Installation directory of scripts.
 
     XLOTUS_LIB = ~/.local/lib/xlotus
-        Files that get sourced inside scripts.
-        These are common files used among scripts.
+        Common files used among scripts.
 
     XLOTUS_CACHE = ~/.cache/xlotus
-        Temporary files due to script operations.
+        Temporary files of script operations.
+
+    XLOTUS_HELP = ~/.local/share/xlotus/help
+        Help pages

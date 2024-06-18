@@ -7,6 +7,7 @@ XLOTUS_CFG="$HOME/.config/xlotus"
 XLOTUS_BIN="$HOME/.local/bin"
 XLOTUS_LIB="$HOME/.local/lib/xlotus"
 XLOTUS_HELP="$HOME/.local/share/xlotus/help"
+XLOTUS_CACHE="$HOME/.cache/xlotus"
 # ----------------------------------------------
 
 
@@ -14,16 +15,12 @@ XLOTUS_HELP="$HOME/.local/share/xlotus/help"
 # ----------------------------------------------
 #   FUNCTIONS
 # ----------------------------------------------
-# Generate an array of script names from scriptInfo
-XLOTUS_ALL=("$(scriptInfo | awk -F ';;;' '{print $1}')")
-
-XLOTUS_LIB_ALL=("$(ls lib/)")
-XLOTUS_CFG_ALL=("$(ls cfg/)")
-
-# Color text for OK(green), ERR(red) and REM(blue)
-function stxt () { echo -e "\033[0;32m[OK]\033[0m $1" ;}
-function etxt () { echo -e "\033[0;31m[ERR] $1\033[0m" ;}
-function rtxt () { echo -e "\033[0;34m[REM] $1\033[0m" ;}
+# "Success" text (green)
+stxt () { echo -e "\033[0;32m[OK]\033[0m $1" ;}
+# "Error" text (red)
+etxt () { echo -e "\033[0;31m[ERR] $1\033[0m" ;}
+# "Removed" text (blue)
+rtxt () { echo -e "\033[0;34m[REM] $1\033[0m" ;}
 
 # If directory does not exist, make it
 function chkmk () { 
@@ -112,7 +109,7 @@ function main () {
     esac
 }
 
-# Message to print when installation was a success
+# Message to print when installation is a success.
 function success () {
     if [ "$has_err" != "1" ]; then
         echo -e "\n\033[0;32mInstallation was a success!\033[0m"
@@ -131,6 +128,7 @@ chkmk $XLOTUS_CFG
 chkmk $XLOTUS_BIN
 chkmk $XLOTUS_LIB
 chkmk $XLOTUS_HELP
+chkmk $XLOTUS_CACHE
 
 # If no arguments provided, use --all
 if [ -z "$1" ]; then
@@ -146,15 +144,19 @@ fi
 # ----------------------------------------------
 #   PROCESS OPTIONS
 # ----------------------------------------------
+XLOTUS_ALL_BIN=($(ls bin/))
+XLOTUS_ALL_CFG=($(ls cfg/))
+XLOTUS_ALL_LIB=($(ls lib/))
+
 case $opt in
     -a|--all)
-        for cfg in ${XLOTUS_CFG_ALL[@]}; do
+        for cfg in ${XLOTUS_ALL_CFG[@]}; do
             main add cfg "$cfg"
         done
-        for lib in ${XLOTUS_LIB_ALL[@]}; do
+        for lib in ${XLOTUS_ALL_LIB[@]}; do
             main add lib "$lib"
         done
-        for script in ${XLOTUS_ALL[@]}; do
+        for script in ${XLOTUS_ALL_BIN[@]}; do
             main add bin "$script"
         done
         if [ ! -f "$XLOTUS_HELP"/footer ]; then 
@@ -170,15 +172,15 @@ case $opt in
         ;;
 
     -d|--dev)
-        for cfg in ${XLOTUS_CFG_ALL[@]}; do
+        for cfg in ${XLOTUS_ALL_CFG[@]}; do
             main add cfg "$cfg"
         done
 
-        for lib in ${XLOTUS_LIB_ALL[@]}; do
+        for lib in ${XLOTUS_ALL_LIB[@]}; do
             main link lib "$lib"
         done
 
-        for script in ${XLOTUS_ALL[@]}; do
+        for script in ${XLOTUS_ALL_BIN[@]}; do
             main link bin "$script"
         done
         
@@ -207,5 +209,8 @@ case $opt in
         fi
         ;;
 
-    *) etxt "Invalid argument: $1" ;;
+    *) 
+        etxt "Invalid argument: $1"
+        cat help/install
+        ;;
 esac

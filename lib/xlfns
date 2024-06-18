@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
 
+# If directory does not exist, make it
+function chkmk () { 
+    if [ ! -d $1 ]; then 
+        mkdir -p $1
+        ctxt g "Created directory: $1" 
+    fi
+}
+
 XLOTUS_CFG="$HOME/.config/xlotus"
 XLOTUS_BIN="$HOME/.local/bin"
 XLOTUS_LIB="$HOME/.local/lib/xlotus"
 XLOTUS_CACHE="$HOME/.cache/xlotus"
 XLOTUS_HELP="$HOME/.local/share/xlotus/help"
 
+chkmk $XLOTUS_CFG
+chkmk $XLOTUS_BIN
+chkmk $XLOTUS_LIB
+chkmk $XLOTUS_HELP
+chkmk $XLOTUS_CACHE
+
+# Fuzzy finder command.
 function fzfcmd { 
     fzf --color=preview-bg:'#282829',pointer:1,prompt:4,hl:4,bg+:'#45403d',fg+:7,hl+:1 \
         --bind 'tab:toggle+up,shift-tab:toggle+down,change:first' \
@@ -14,6 +29,7 @@ function fzfcmd {
         "${@:2}"
 }
 
+# Notification daemon.
 function notifier { 
     case $1 in
         normal) notify-send -i "$2" "$3" "\n<b><u>$4</u></b>\n\n${@:5}"  ;;
@@ -22,6 +38,7 @@ function notifier {
     esac
 }
 
+# Empty fzf for prompt.
 function fzfprompt {
     echo "" |\
         fzf --print-query -0 \
@@ -32,6 +49,7 @@ function fzfprompt {
             "${@:2}" | sed '/^$/d'
 }
 
+# MPV + yt-dlp.
 function mpvcmd {
     notifier normal \
         "im-youtube" \
@@ -48,6 +66,7 @@ function mpvcmd {
     fi
 }
 
+# Color text.
 function ctxt () {
     ctxtBeginSeq="\033["
     ctxtResetSeq="\033[0m"
@@ -66,19 +85,7 @@ function ctxt () {
     echo -e "${ctxtBeginSeq}0;3${ctxtColor}m${2}${ctxtResetSeq}"
 }
 
-# If directory does not exist, make it
-function chkmk () { 
-    if [ ! -d $1 ]; then 
-        mkdir -p $1
-        ctxt g "Created directory: $1" 
-    fi
-}
-
-chkmk $XLOTUS_CFG
-chkmk $XLOTUS_BIN
-chkmk $XLOTUS_LIB
-chkmk $XLOTUS_CACHE
-
+# Check number type (int or float) and value (positive or negative).
 function checkNum () {
     if [[ $1 =~ ^[+]?[0-9]+$ ]]; then
         numType="int"
@@ -95,6 +102,7 @@ function checkNum () {
     echo "$numType"
 }
 
+# Check rgb color.
 function checkRGB () {
     checkRGBVal=`checkNum "$2"`
 
@@ -115,6 +123,7 @@ function checkRGB () {
     fi
 }
 
+# Split rgb into its 3 colors.
 function split_rgb () {
     rgb=`echo $1 | sed 's/^rgb(//g; s/)$//g'`
     r=`echo $rgb | awk -F ',' '{print $1}'`
@@ -122,6 +131,7 @@ function split_rgb () {
     b=`echo $rgb | awk -F ',' '{print $3}'`
 }
 
+# Check type of color (hex, rgb, term or invalid).
 function checkColor () {
     if [[ "$1" =~ ^"#" ]] && [[ ${#1} == 7 ]]; then
         checkColorVal="hex"
@@ -142,6 +152,7 @@ function checkColor () {
     fi
 }
 
+# Check if there's internet connection.
 function checkNetwork () {
     if ! curl -m 5 -s https://google.com > /dev/null; then
         notifier err \
