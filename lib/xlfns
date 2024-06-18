@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # If directory does not exist, make it
-function chkmk () { 
-    if [ ! -d $1 ]; then 
-        mkdir -p $1
+chkmk () { 
+    if [ ! -d "$1" ]; then 
+        mkdir -p "$1"
         ctxt g "Created directory: $1" 
     fi
 }
@@ -14,14 +14,14 @@ XLOTUS_LIB="$HOME/.local/lib/xlotus"
 XLOTUS_CACHE="$HOME/.cache/xlotus"
 XLOTUS_HELP="$HOME/.local/share/xlotus/help"
 
-chkmk $XLOTUS_CFG
-chkmk $XLOTUS_BIN
-chkmk $XLOTUS_LIB
-chkmk $XLOTUS_HELP
-chkmk $XLOTUS_CACHE
+chkmk "$XLOTUS_CFG"
+chkmk "$XLOTUS_BIN"
+chkmk "$XLOTUS_LIB"
+chkmk "$XLOTUS_HELP"
+chkmk "$XLOTUS_CACHE"
 
 # Fuzzy finder command.
-function fzfcmd { 
+fzfcmd () { 
     fzf --color=preview-bg:'#282829',pointer:1,prompt:4,hl:4,bg+:'#45403d',fg+:7,hl+:1 \
         --bind 'tab:toggle+up,shift-tab:toggle+down,change:first' \
         --tiebreak=begin \
@@ -30,16 +30,16 @@ function fzfcmd {
 }
 
 # Notification daemon.
-function notifier { 
+notifier () { 
     case $1 in
-        normal) notify-send -i "$2" "$3" "\n<b><u>$4</u></b>\n\n${@:5}"  ;;
-        invalid) notify-send -i "dialog-error" "$2" "\n<b><u>Invalid argument</u>: '$3'</b>\n\n${@:4}" ;;
-        err) notify-send -i "dialog-error" "$2" "\n<b><u>$3</u></b>\n\n${@:4}"  ;;
+        normal) notify-send -i "$2" "$3" "\n<b><u>$4</u></b>\n\n${*:5}"  ;;
+        invalid) notify-send -i "dialog-error" "$2" "\n<b><u>Invalid argument</u>: '$3'</b>\n\n${*:4}" ;;
+        err) notify-send -i "dialog-error" "$2" "\n<b><u>$3</u></b>\n\n${*:4}"  ;;
     esac
 }
 
 # Empty fzf for prompt.
-function fzfprompt {
+fzfprompt () {
     echo "" |\
         fzf --print-query -0 \
             --color=pointer:0,prompt:4,hl:4,bg+:0,fg+:7,hl+:1 \
@@ -50,15 +50,13 @@ function fzfprompt {
 }
 
 # MPV + yt-dlp.
-function mpvcmd {
+mpvcmd () {
     notifier normal \
         "im-youtube" \
         "Mpv (mpvcmd)" \
         "Your video will run shortly"
 
-    mpv "$@"
-
-    if [[ $? != 0 ]]; then
+    if ! mpv "$@"; then
         notifier err \
             "Mpv (mpvcmd)" \
             "mpv (yt-dlp) failed to run url" \
@@ -67,7 +65,7 @@ function mpvcmd {
 }
 
 # Color text.
-function ctxt () {
+ctxt () {
     ctxtBeginSeq="\033["
     ctxtResetSeq="\033[0m"
 
@@ -86,7 +84,7 @@ function ctxt () {
 }
 
 # Check number type (int or float) and value (positive or negative).
-function checkNum () {
+checkNum () {
     if [[ $1 =~ ^[+]?[0-9]+$ ]]; then
         numType="int"
     elif [[ $1 =~ ^[-][0-9]+$ ]]; then
@@ -103,8 +101,8 @@ function checkNum () {
 }
 
 # Check rgb color.
-function checkRGB () {
-    checkRGBVal=`checkNum "$2"`
+checkRGB () {
+    checkRGBVal=$(checkNum "$2")
 
     case $1 in
         r) msgColor="r Red" ;;
@@ -112,7 +110,7 @@ function checkRGB () {
         b) msgColor="b Blue" ;;
     esac
     
-    msgColorName=`ctxt $msgColor`
+    msgColorName=$(ctxt "$msgColor")
 
     if [ -z "$2" ]; then
         printf "%-17s : %14s\n" "$msgColorName" "Empty value"
@@ -124,28 +122,28 @@ function checkRGB () {
 }
 
 # Split rgb into its 3 colors.
-function split_rgb () {
-    rgb=`echo $1 | sed 's/^rgb(//g; s/)$//g'`
-    r=`echo $rgb | awk -F ',' '{print $1}'`
-    g=`echo $rgb | awk -F ',' '{print $2}'`
-    b=`echo $rgb | awk -F ',' '{print $3}'`
+split_rgb () {
+    rgb=$(echo "$1" | sed 's/^rgb(//g; s/)$//g')
+    r=$(echo "$rgb" | awk -F ',' '{print $1}')
+    g=$(echo "$rgb" | awk -F ',' '{print $2}')
+    b=$(echo "$rgb" | awk -F ',' '{print $3}')
 }
 
 # Check type of color (hex, rgb, term or invalid).
-function checkColor () {
+checkColor () {
     if [[ "$1" =~ ^"#" ]] && [[ ${#1} == 7 ]]; then
         checkColorVal="hex"
     elif [[ "$1" =~ ^"rgb(".*")"$ ]]; then
         split_rgb "$1"
 
-        checkRGB r $r
-        checkRGB g $g
-        checkRGB b $b
+        checkRGB r "$r"
+        checkRGB g "$g"
+        checkRGB b "$b"
 
         if [[ "$checkColorVal" != "invalidRGB" ]]; then
             checkColorVal="rgb"
         fi
-    elif [ ${#1} -le 3 ] && [ "`checkNum $1`" == "int" ] && [ ${1} -lt 256 ]; then
+    elif [ ${#1} -le 3 ] && [ "$(checkNum "$1")" == "int" ] && [ "$1" -lt 256 ]; then
         checkColorVal="term"
     else
         checkColorVal="invalid"
@@ -153,7 +151,7 @@ function checkColor () {
 }
 
 # Check if there's internet connection.
-function checkNetwork () {
+checkNetwork () {
     if ! curl -m 5 -s https://google.com > /dev/null; then
         notifier err \
             "Xlotus Utilities" \

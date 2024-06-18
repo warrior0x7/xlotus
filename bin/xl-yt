@@ -41,7 +41,7 @@ function updater {
                 exit 1
             fi
 
-            awk '/<entry>/,/<\/entry>/' < "$TMP"/* |\
+            awk '/<entry>/,/<\/entry>/' "$TMP"/* |\
             grep --no-group-separator --color=never -A 10 href |\
             sed '/author>/d; /<uri>/d; /<media:group>/d; /<media:content url=/d; /<updated>/d; s/.*href="//g; s/.*<media:thumbnail url="//g; s/".*$//g; s/.*<published>//g; s/<\/published>.*$//g; s/^.*<media:title>//g; s/<\/media:title>.*$//g; s/&quot;/"/g; s/^.*<name>//g; s/<\/name>.*$//g; s/&amp;/\&/g' |\
             perl -pe 's/\n/;;;/g if $. % 5' |\
