@@ -1,53 +1,56 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-source ~/.local/lib/xlotus/xlfns
+. "$HOME/.local/lib/xlotus/xlfns"
 
 case $1 in
     clip)
         shift
-        fileType=`cliphist decode $1 | file --mime-type -`
+        fileType=$(cliphist decode "$1" | file --mime-type -)
 
         if [[ $fileType =~ "image" ]]; then
-            cliphist decode $1 |\
+            cliphist decode "$1" |\
                 chafa -f sixels \
-                -s ${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES} -
+                -s "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" -
         else
-            cliphist decode $1 |\
+            cliphist decode "$1" |\
                 bat --color=always \
                 --style=numbers,grid \
                 --wrap=auto \
                 --theme=gruvbox-dark \
-                --terminal-width ${FZF_PREVIEW_COLUMNS}
+                --terminal-width "$FZF_PREVIEW_COLUMNS"
         fi 
         ;;
 
     color)
         shift
-        width=`cat $XLOTUS_CFG/xlotus.cfg | grep --color=never fzf_color_width | awk -F '=' '{print $2}'`
-        height=`cat $XLOTUS_CFG/xlotus.cfg | grep --color=never fzf_color_height | awk -F '=' '{print $2}'`
+        width=$(grep --color=never fzf_color_width "$XLOTUS_CFG"/xlotus.cfg |\
+                awk -F '=' '{print $2}')
+        height=$(grep --color=never fzf_color_height "$XLOTUS_CFG"/xlotus.cfg |\
+                awk -F '=' '{print $2}')
 
-        rgb=`echo "$1" | $XLOTUS_BIN/xl-rgb -stdin --rgb | sed 's/^rgb(//g; s/)$//g'`
-        r=`echo $rgb | awk -F ',' '{print $1}'`
-        g=`echo $rgb | awk -F ',' '{print $2}'`
-        b=`echo $rgb | awk -F ',' '{print $3}'`
+        rgb=$(echo "$1" | "$XLOTUS_BIN"/xl-rgb -stdin --rgb | sed 's/^rgb(//g; s/)$//g')
+        r=$(echo "$rgb" | awk -F ',' '{print $1}')
+        g=$(echo "$rgb" | awk -F ',' '{print $2}')
+        b=$(echo "$rgb" | awk -F ',' '{print $3}')
 
-        for i in `seq 1 ${height}`; do
-            printf "\033[0;48;2;${r};${g};${b}m%${width}s\033[0m\n"
+        for i in $(seq 1 "$height"); do
+            echo -e "\033[0;48;2;${r};${g};${b}m%${width}s\033[0m\n"
         done
         ;;
 
     yt)
         shift
-        imgName=`echo "$1" | sed 's|^.*?v=||g'`
-        line=`cat $XLOTUS_CACHE/xl-yt/ytrss | grep --color=never -F ";;;$1"`
-        url=`echo "$line" | awk -F ';;;' '{print $5}'`
-        title=`echo "$line" | awk -F ';;;' '{print $4}'`
-        name=`echo "$line" | awk -F ';;;' '{print $2}'`
+        imgName="${1//*\?v=/}"
+        line=$(grep --color=never -F ";;;$1" "$XLOTUS_CACHE"/xl-yt/ytrss)
+        title=$(echo "$line" | awk -F ';;;' '{print $4}')
+        name=$(echo "$line" | awk -F ';;;' '{print $2}')
 
-        preview_height=$(( $FZF_PREVIEW_LINES - 5 ))
-        preview_width=$(( $FZF_PREVIEW_COLUMNS - 5 ))
+        preview_height=$(( FZF_PREVIEW_LINES - 5 ))
+        preview_width=$(( FZF_PREVIEW_COLUMNS - 5 ))
 
-        chafa -f sixels -s ${preview_width}x${preview_height} $XLOTUS_CACHE/xl-yt/img/$imgName
+        chafa -f sixels \
+              -s "$preview_width"x"$preview_height" \
+              "$XLOTUS_CACHE"/xl-yt/img/"$imgName"
 
         printf "[%s]" "$name"
 
@@ -55,6 +58,6 @@ case $1 in
             bat --color=always \
                 --style=grid \
                 --wrap=auto \
-                --terminal-width ${FZF_PREVIEW_COLUMNS}
+                --terminal-width "$FZF_PREVIEW_COLUMNS"
         ;;
 esac

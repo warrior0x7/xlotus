@@ -9,10 +9,10 @@ A collection of shell scripts that extends the functionality of my system
 ## Scripts
 |Script|Description|
 |--|--|
-|xl-yt|YouTube RSS feed aggregator using FZF|
-|xl-rgb|Color converter to RGB, Hex or 0-255 index terminal color|
-|xl-cmd|Runner for user-defined commands|
-|xl-headd|Run commands on headphone jack plug/unplug|
+|xl-yt|YouTube RSS feed aggregator using fzf|
+|xl-rgb|Color converter to RGB, Hex or nearest 0-255 terminal index color|
+|xl-cmd|Run user-defined command presets|
+|xl-daemon|Run custom daemons in background|
 |xl-prayer|(Islam) Print next prayer and its time|
 |xl-jump|Faster cd and file editing with fzf|
 
@@ -27,19 +27,20 @@ A collection of shell scripts that extends the functionality of my system
 - wl-clipboard (Wayland)
 - acpid
 - jq
+- fd
 
 ### Arch Linux
-I personally use `konsole` because it supports both RTL and sixel
+Install a terminal. I use `konsole` because it supports both RTL and sixel
 ```Bash
 sudo pacman -Sy --needed konsole
 ```
 #### Xorg
 ```Bash
-sudo pacman -Sy --needed fzf chafa bat curl gawk acpid jq xclip
+sudo pacman -Sy --needed fzf chafa bat curl gawk acpid jq fd xclip
 ```
 #### Wayland
 ```Bash
-sudo pacman -Sy --needed fzf chafa bat curl gawk acpid jq wl-clipboard
+sudo pacman -Sy --needed fzf chafa bat curl gawk acpid jq fd wl-clipboard
 ```
 
 ## Getting started
@@ -59,5 +60,6 @@ cd xlotus
 ```
 
 ## Support
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/warrior0x7) | [![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/Warrior0x7/donate)
+|Paypal|Liberapay|
 |--|--|
+[![paypal](assets/paypal.png)](https://www.paypal.me/warrior0x7) | [![Liberapay](assets/liberapay.png)](https://liberapay.com/Warrior0x7/donate)

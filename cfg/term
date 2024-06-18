@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+. "$HOME/.local/lib/xlotus/xlfns"
+
+BIN="$XLOTUS_BIN"
+
+fterm () { konsole --notransparency -p tabtitle="Floating" -e "$@"; }
+
+case $1 in
+    run) fterm "$BIN"/xl-run ;; 
+    cmd) fterm "$BIN"/xl-cmd ;;
+    *)
+        ctxt r "[ERR] Invalid option '$1' for ~/.config/xlotus/term"
+        ;;
+esac

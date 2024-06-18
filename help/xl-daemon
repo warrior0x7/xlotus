@@ -1,0 +1,9 @@
+Description:
+    Run custom daemons in the background.
+
+Usage: xl-daemon <Option>
+
+Option:
+
+    -h , --help:
+        Print this help page.

@@ -1,0 +1,37 @@
+Description: 
+    YouTube RSS feed aggregator using fzf.
+
+Usage: xl-yt <Option>
+
+Option: One of the following:
+
+    -h , --help:
+        Print this help page.
+
+    -a, --add: <URL> , clip
+        Add supplied link to list of feeds. You can use clip 
+        keyword instead of URL to use link from clipboard instead.
+        (both wl-clipboard and xclip are supported)
+
+    -c, --change:
+        Edit subscriptions with your EDITOR.
+
+    -u, --update:
+        Update subscription feed.
+
+    -v, --view:
+        View subscription feed.
+
+    -i, --import: <FILE>
+        Import subscriptions (NewPipe JSON) from previous export.
+
+    -e, --export: <FILENAME> (name without .json extension)
+        Export subscriptions (NewPipe JSON) to current directory.
+
+Subscriptions:
+    They are added into ~/.config/xlotus/ytsubs
+
+    Do not add subscriptions manually to this file and use
+    --add instead
+
+    Syntax: <CHANNEL NAME>;;;<RSS FEED URL>

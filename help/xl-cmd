@@ -1,0 +1,20 @@
+Description: 
+    Run user-defined command presets.
+
+Usage: xl-cmd <Option>
+
+Option: 
+
+    -h , --help:
+        Print this help page.
+
+Configuration:
+    Custom commands are added inside ~/.config/xlotus/cmd
+
+    Syntax: <ICON>;<NAME>;<COMMAND>
+
+    <COMMAND> can be preceded by:
+          & => Run command asynchronously
+        [i] => Run command interactively
+
+    You don't need to provide full path of xlotus scripts.

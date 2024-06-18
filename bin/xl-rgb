@@ -1,37 +1,10 @@
 #!/usr/bin/env bash
 
-source ~/.local/lib/xlotus/xlfns
+. "$HOME/.local/lib/xlotus/xlfns"
 
 function printHelp () {
-    cat <<-EOF
-Description:
-    A simple color converter to RGB, Hex or 0-255 index terminal color.
-
-Usage: xl-rgb <Option>
-
-Option: One of the following options:
-
-    -h , --help:
-        Prints this help page.
-
-    --rgb:
-        Specify target as RGB { rgb(r,g,b) }
-
-    --hex:
-        Specify target as Hex color { #RRGGBB }
-
-    --term:
-        Specify target as 0-255 color index of terminal { NNN }
-
-Reading from stdin:
-    You can tell the script to read from stdin by adding a - at the end.
-    Example:
-        echo "#ea6962" | xl-rgb --rgb -
-
-Project:
-    This script is a part of xlotus utilities
-    https://github.com/warrior0x7/xlotus
-EOF
+    cat "$XLOTUS_HELP"/xl-rgb
+    cat "$XLOTUS_HELP"/footer
 }
 
 function invalidColorMsg () {
@@ -47,7 +20,7 @@ EOF
 }
 
 function hex_to_rgb () {
-    hex=$(echo "$1" | sed 's/^#//g')
+    hex="${1//#/}"
     r=$(( 16#${hex:0:2} ))
     g=$(( 16#${hex:2:2} ))
     b=$(( 16#${hex:4:2} ))

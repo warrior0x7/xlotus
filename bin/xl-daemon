@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+. "$HOME/.local/lib/xlotus/xlfns"
+
+CONFIG="$XLOTUS_CFG"
+HELP="$XLOTUS_HELP"
+
+function printHelp () {
+    cat "$HELP"/xl-daemon
+    cat "$HELP"/footer
+}
+
+case $1 in
+    -h|--help) printHelp ;;
+    *)
+        for daemon in "$CONFIG"/daemon/*
+        do
+            bash -c "nohup bash -c '$daemon &' 2&>/dev/null"
+        done
+        ;;
+esac

@@ -1,64 +1,25 @@
 #!/usr/bin/env bash
 
-source ~/.local/lib/xlotus/xlfns
+. "$HOME/.local/lib/xlotus/xlfns"
 
-CONFIG=$XLOTUS_CFG
+CONFIG="$XLOTUS_CFG"
 
 chkmk "$CONFIG"
 
-dirInclude=("$(cat "$CONFIG"/include)")
-dirExclude=("$(cat "$CONFIG"/exclude | sed 's/^/\\\|/g; s/$/|d;/g')")
+dirInclude="$(sed '/\[exclude\]/,/\[include\]/d; /^$/d' "$CONFIG"/jump | tr '\n' ' ')"
+dirExclude="$(sed '/\[include\]/,$d; /^$/d; /\[exclude\]/d; s/^/\\\|/g; s/$/|d;/g' "$CONFIG"/jump)"
 
 function finder () {
     if [ "$1" == "f" ]; then
-        for include in ${dirInclude[@]}; do bash -c "fd . $include -c never -t f"; done
+        bash -c "fd . $dirInclude -c never -t f -H; fd . ~/ -c never -d 1 -H -t f"
     elif [ "$1" == "d" ]; then
-        for include in ${dirInclude[@]}; do bash -c "fd . $include -c never -t d"; done
+        bash -c "fd . $dirInclude -c never -t d -H; fd . ~/ -c never -d 1 -H -t d"
     fi
 }
 
-
 function printHelp () {
-    cat <<-EOF
-Description: 
-    Faster cd and file editing with FZF
-
-Usage: xl-jump <Option>
-
-Option: One of the following:
-
-    -h , --help:
-        Prints this help page.
-
-    -j , --jump:
-        Change directory
-
-    -e , --edit:
-        Edit file with your EDITOR
-
-    -i , --init:
-        Initialize the bash aliases
-
-Getting Started:
-    1. Launch the script like this:
-        $ source xl-jump -i
-
-    2. Enter aliases for edit and jump options
-
-Configuration
-    There are 2 files in ~/.config/xlotus :
-        1. Include for directories you want to include
-
-        2. Exclude for directories/subdirectories you don't want
-           to show while using directories in Include
-
-    Each line in 'include' must have full path
-    Each line in 'exclude' is a sed pattern
-
-Project:
-    This script is one of the xlotus utilities
-    https://github.com/warrior0x7/xlotus
-EOF
+    cat "$XLOTUS_HELP"/xl-jump
+    cat "$XLOTUS_HELP"/footer
 }
 
 case $1 in
@@ -70,7 +31,7 @@ case $1 in
         else
             read -r -p "Enter alias name for edit: " scEdit
             if [ -n "$scEdit" ]; then
-                echo "alias $scEdit=\"source xl-jump --edit\"" >> ~/.bashrc
+                echo "alias $scEdit=\"xl-jump --edit\"" >> ~/.bashrc
                 ctxt g "Created alias for edit: $scEdit"
             fi
         fi
@@ -80,24 +41,21 @@ case $1 in
         else
             read -r -p "Enter alias name for jump: " scJump
             if [ -n "$scJump" ]; then
-                echo "alias $scJump=\"source xl-jump --jump\"" >> ~/.bashrc
+                echo "alias $scJump=\". xl-jump --jump\"" >> ~/.bashrc
                 ctxt g "Created alias for jump: $scJump"
             fi
         fi
 
-        source ~/.bashrc
+        . "$HOME/.bashrc"
         ;;
 
     -e|--edit)
-        files=("$(finder f | sed "${dirExclude[@]}" | fzfcmd "EDIT" --multi)")
+        files=("$(finder f | sed "$dirExclude" | fzfcmd "EDIT" --multi)")
         [ -n "$files" ] && $EDITOR ${files[@]}
         ;;
 
     -j|--jump)
-        dir=$(finder d | sed -e "${dirExclude[@]}" | fzfcmd "CD")
+        dir=$(finder d | sed -e "$dirExclude" | fzfcmd "CD")
         [ -n "$dir" ] && cd "$dir"
-        ;;
-
-    *)
         ;;
 esac
