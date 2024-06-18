@@ -23,9 +23,9 @@ case $1 in
 
     color)
         shift
-        width=$(grep --color=never fzf_color_width "$XLOTUS_CFG"/xlotus.cfg |\
+        width=$(grep --color=never "fzf_color_width=" "$XLOTUS_CFG"/xlotus.cfg |\
                 awk -F '=' '{print $2}')
-        height=$(grep --color=never fzf_color_height "$XLOTUS_CFG"/xlotus.cfg |\
+        height=$(grep --color=never "fzf_color_height=" "$XLOTUS_CFG"/xlotus.cfg |\
                 awk -F '=' '{print $2}')
 
         rgb=$(echo "$1" | "$XLOTUS_BIN"/xl-rgb -stdin --rgb | sed 's/^rgb(//g; s/)$//g')

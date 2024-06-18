@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+. "$HOME/.local/lib/xlotus/xlfns"
+
+HELP="$XLOTUS_HELP"
+CFG="$XLOTUS_CFG"
+
+printHelp () {
+    cat "$HELP/xl-virt"
+    cat "$HELP/footer"
+}
+
+randomMac () {
+    # Generate a random mac address
+    printf "52:54:%02x:%02x:%02x:%02x" \
+        $(( RANDOM & 0xff)) \
+        $(( RANDOM & 0xff )) \
+        $(( RANDOM & 0xff)) \
+        $(( RANDOM & 0xff ))
+}
+
+virtIsoDir=$(grep --color=never "virt_iso_dir=" "$CFG"/xlotus.cfg | awk -F '=' '{gsub("\"","",$2); print $2}')
+virtDriveDir=$(grep --color=never "virt_drive_dir=" "$CFG"/xlotus.cfg | awk -F '=' '{gsub("\"","",$2); print $2}')
+
+case $1 in
+    -h|--help) printHelp ;;
+    -i|--iso)
+        iso=$(ls "$HOME"/"$virtIsoDir" | fzfcmd "ISO")
+        drive=$(ls "$HOME"/"$virtDriveDir" | fzfcmd "Drive")
+
+        if [ -n "$iso" ] && [ -n "$drive" ]; then
+            qemu-system-x86_64 \
+                -net nic,macaddr="$(randomMac)",model=virtio \
+                -net user \
+                -vga virtio \
+                -accel kvm \
+                -cpu host \
+                -boot order=d \
+                -cdrom "$HOME"/"$virtIsoDir"/"$iso" \
+                -drive file="$HOME"/"$virtDriveDir"/"$drive",format=raw \
+                -m 1024M \
+                -display gtk,show-menubar=off,full-screen=on
+        fi
+        ;;
+    -d|--drive)
+        drive=$(ls "$HOME"/"$virtDriveDir" | fzfcmd "Drive")
+
+        if [ -n "$drive" ]; then
+            qemu-system-x86_64 \
+                -net nic,macaddr="$(randomMac)",model=virtio \
+                -net user \
+                -vga virtio \
+                -accel kvm \
+                -cpu host \
+                -boot order=d \
+                -drive file="$HOME"/"$virtDriveDir"/"$drive",format=raw \
+                -m 1024M \
+                -display gtk,show-menubar=off,full-screen=on
+        fi
+        ;;
+    -m|--mkdrive)
+            ctxt g "\nCreating a new raw drive\n"
+            read -p "Name of drive: " driveName
+            read -p "Size of drive: " driveSize
+            qemu-img create -f raw "$HOME"/"$virtDriveDir"/"$driveName" "$driveSize"
+        ;;
+    *)
+        ;;
+esac

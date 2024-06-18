@@ -1,0 +1,24 @@
+Description:
+    Launch qemu virtual machines.
+
+Usage: xl-virt <Option>
+
+Configuration:
+    Derived from ~/.config/xlotus/xlotus.cfg:
+        virt_drive_dir : directory of qemu raw drives.
+        virt_iso_dir : directory of iso files.
+
+Option: One of the following:
+
+    -h , --help:
+        Print this help page.
+
+    -m , --mkdrive:
+        Make a new raw drive in virt_drive_dir.
+
+    -i , --iso:
+        Boot from a drive in virt_drive_dir and
+        an iso in virt_iso_dir.
+
+    -d , --drive:
+        Boot from a drive in virt_drive_dir.
