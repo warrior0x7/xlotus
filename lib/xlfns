@@ -154,7 +154,7 @@ checkColor () {
 checkNetwork () {
     if ! curl -m 5 -s https://google.com > /dev/null; then
         notifier err \
-            "Xlotus Utilities" \
+            "$1" \
             "No Connection available"
         exit 1
     fi

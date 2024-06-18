@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 
-. ~/.local/lib/xlotus/xlfns
+. "$HOME/.local/lib/xlotus/xlfns"
+
+HELP="$XLOTUS_HELP"
 
 function printHelp () {
-    cat "$XLOTUS_HELP"/xl-run
-    cat "$XLOTUS_HELP"/footer
+    cat "$HELP"/xl-run
+    cat "$HELP"/footer
 }
 
 case $1 in
     -h|--help) printHelp ;;
     *)
         prog="$(printf "%s" "$PATH" |\
-            xargs -d: -I{} -r find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%P\n' |\
-            sort -u |\
-            awk -F ';' '{ printf "%2s %-5s\n", " ", $1}' |\
-            fzfcmd "Run")"
+                xargs -d: -I{} -r find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%P\n' |\
+                sort -u |\
+                awk -F ';' '{ printf "%2s %-5s\n", " ", $1}' |\
+                fzfcmd "Run")"
 
         if [ -n "$prog" ]; then
             nohup bash -c "$prog &" 2&>/dev/null

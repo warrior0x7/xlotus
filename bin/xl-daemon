@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-# 
-# Credit : https://askubuntu.com/a/1284966
 
 . "$HOME/.local/lib/xlotus/xlfns"
 
-CONFIG=$XLOTUS_CFG
+CONFIG="$XLOTUS_CFG"
+HELP="$XLOTUS_HELP"
 
 function printHelp () {
-    cat $XLOTUS_HELP/xl-daemon
-    cat $XLOTUS_HELP/footer
+    cat "$HELP"/xl-daemon
+    cat "$HELP"/footer
 }
 
 case $1 in

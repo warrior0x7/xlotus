@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 
-. ~/.local/lib/xlotus/xlfns
+. "$HOME/.local/lib/xlotus/xlfns"
+
+# --------------------------------------------
+# CONFIGURATION
+# --------------------------------------------
+# 1. Run keyd monitor.
+# 2. Press keys.
+# 3. Edit the if/elif/else statement to run the commands
+#    you want on key press.
 
 toggle=0
 keyd monitor | stdbuf -o0 grep --color=never "capslock down" | while IFS= read -r line;
