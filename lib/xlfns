@@ -159,3 +159,9 @@ checkNetwork () {
         exit 1
     fi
 }
+
+# get config value
+getConfig () {
+    grep --color=never "$1=" "$XLOTUS_CFG"/xlotus.cfg |\
+        awk -F '=' '{gsub("\"","",$2); print $2}'
+}

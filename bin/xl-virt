@@ -3,7 +3,6 @@
 . "$HOME/.local/lib/xlotus/xlfns"
 
 HELP="$XLOTUS_HELP"
-CFG="$XLOTUS_CFG"
 
 printHelp () {
     cat "$HELP/xl-virt"
@@ -19,49 +18,51 @@ randomMac () {
         $(( RANDOM & 0xff ))
 }
 
-virtIsoDir=$(grep --color=never "virt_iso_dir=" "$CFG"/xlotus.cfg | awk -F '=' '{gsub("\"","",$2); print $2}')
-virtDriveDir=$(grep --color=never "virt_drive_dir=" "$CFG"/xlotus.cfg | awk -F '=' '{gsub("\"","",$2); print $2}')
+virtIsoDir="$(getConfig "virt_iso_dir")"
+virtDriveDir="$(getConfig "virt_drive_dir")"
 
 case $1 in
     -h|--help) printHelp ;;
     -i|--iso)
-        iso=$(ls "$HOME"/"$virtIsoDir" | fzfcmd "ISO")
-        drive=$(ls "$HOME"/"$virtDriveDir" | fzfcmd "Drive")
+        iso=$(fd . "$HOME"/"$virtIsoDir" -t f | fzfcmd "ISO" -d/ --with-nth -1)
+        drive=$(fd . "$HOME"/"$virtDriveDir" -t f | fzfcmd "Drive" -d/ --with-nth -1)
 
         if [ -n "$iso" ] && [ -n "$drive" ]; then
-            qemu-system-x86_64 \
-                -net nic,macaddr="$(randomMac)",model=virtio \
+            nohup bash -c "qemu-system-x86_64 \
+                -net nic,macaddr=$(randomMac),model=virtio \
                 -net user \
                 -vga virtio \
                 -accel kvm \
                 -cpu host \
                 -boot order=d \
-                -cdrom "$HOME"/"$virtIsoDir"/"$iso" \
-                -drive file="$HOME"/"$virtDriveDir"/"$drive",format=raw \
+                -cdrom $iso \
+                -drive file=$drive,format=raw \
                 -m 1024M \
-                -display gtk,show-menubar=off,full-screen=on
+                -display gtk,show-menubar=off,full-screen=on &" 2&>/dev/null
         fi
         ;;
+
     -d|--drive)
-        drive=$(ls "$HOME"/"$virtDriveDir" | fzfcmd "Drive")
+        drive=$(fd . "$HOME"/"$virtDriveDir" -t f | fzfcmd "Drive" -d/ --with-nth -1)
 
         if [ -n "$drive" ]; then
-            qemu-system-x86_64 \
-                -net nic,macaddr="$(randomMac)",model=virtio \
+            nohup bash -c "qemu-system-x86_64 \
+                -net nic,macaddr=$(randomMac),model=virtio \
                 -net user \
                 -vga virtio \
                 -accel kvm \
                 -cpu host \
                 -boot order=d \
-                -drive file="$HOME"/"$virtDriveDir"/"$drive",format=raw \
+                -drive file=$drive,format=raw \
                 -m 1024M \
-                -display gtk,show-menubar=off,full-screen=on
+                -display gtk,show-menubar=off,full-screen=on &" 2&>/dev/null
         fi
         ;;
+
     -m|--mkdrive)
             ctxt g "\nCreating a new raw drive\n"
-            read -p "Name of drive: " driveName
-            read -p "Size of drive: " driveSize
+            read -r -p "Name of drive: " driveName
+            read -r -p "Size of drive: " driveSize
             qemu-img create -f raw "$HOME"/"$virtDriveDir"/"$driveName" "$driveSize"
         ;;
     *)
