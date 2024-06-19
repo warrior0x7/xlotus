@@ -11,7 +11,7 @@ case $1 in
     cmd) fterm "$BIN"/xl-cmd ;;
     yt) fterm "$BIN"/xl-yt -v ;;
     virt) fterm "$BIN"/xl-virt ;;
-    ffprofile) fterm "$BIN"/xl-fprof ;;
+    ffprofile) fterm "$BIN"/xl-ff ;;
     *)
         ctxt r "[ERR] Invalid option '$1' for ~/.config/xlotus/term"
         ;;
