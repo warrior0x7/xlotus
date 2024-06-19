@@ -9,6 +9,9 @@ fterm () { konsole --notransparency -p tabtitle="Floating" -e "$@"; }
 case $1 in
     run) fterm "$BIN"/xl-run ;; 
     cmd) fterm "$BIN"/xl-cmd ;;
+    yt) fterm "$BIN"/xl-yt -v ;;
+    virt) fterm "$BIN"/xl-virt ;;
+    ffprofile) fterm "$BIN"/xl-fprof ;;
     *)
         ctxt r "[ERR] Invalid option '$1' for ~/.config/xlotus/term"
         ;;

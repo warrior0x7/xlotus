@@ -1,0 +1,9 @@
+Description: 
+    Select firefox profile with fzf
+
+Usage: xl-fprof <Option>
+
+Option: One of the following:
+
+    -h , --help:
+        Print this help page.

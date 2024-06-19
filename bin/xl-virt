@@ -3,6 +3,7 @@
 . "$HOME/.local/lib/xlotus/xlfns"
 
 HELP="$XLOTUS_HELP"
+BIN="$XLOTUS_BIN"
 
 printHelp () {
     cat "$HELP/xl-virt"
@@ -16,6 +17,14 @@ randomMac () {
         $(( RANDOM & 0xff )) \
         $(( RANDOM & 0xff)) \
         $(( RANDOM & 0xff ))
+}
+
+virtMenu () {
+        cat <<-EOF
+;;;Boot from drive;;;--drive
+;;;Boot from ISO;;;--iso
+;;;Create a new disk;;;--mkdrive
+EOF
 }
 
 virtIsoDir="$(getConfig "virt_iso_dir")"
@@ -66,5 +75,14 @@ case $1 in
             qemu-img create -f raw "$HOME"/"$virtDriveDir"/"$driveName" "$driveSize"
         ;;
     *)
+        choice=$(virtMenu |\
+                    awk -F ';;;' '{ printf "%2s %-5s %s\n", " ", $1, $2}' |\
+                    fzfcmd "Virt" |\
+                    sed 's/[^A-Za-z]/ /g; s/ \{3,\}//g')
+
+        if [ -n "$choice" ]; then
+            flag=$(virtMenu | grep "$choice;;;" | awk -F ';;;' '{print $NF}')
+            "$BIN"/xl-virt "$flag" 
+        fi
         ;;
 esac

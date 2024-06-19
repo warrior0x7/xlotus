@@ -10,6 +10,9 @@ Configuration:
 
 Option: One of the following:
 
+    No Argument:
+        Display options in fzf menu.
+
     -h , --help:
         Print this help page.
 
