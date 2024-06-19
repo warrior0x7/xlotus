@@ -16,6 +16,7 @@ A collection of shell scripts that extends the functionality of my system.
 |xl-prayer|(Islam) Print next prayer and its time.|
 |xl-jump|Faster cd and file editing with fzf.|
 |xl-virt|Launch qemu virtual machines.|
+|xl-fprof|Launch firefox profiles from fzf.|
 
 ## Dependencies
 - a terminal with sixel support
