@@ -87,8 +87,6 @@ main () {
                             rtxt "($1) '$2' removed old symlink"
                             $cmd "$1"/"$2" "$installDir"/"$2"
                             stxt "Installed '$2' ($1)"
-                        else
-                            stxt "($1) '$2' already exists"
                         fi
                     # if command is link
                     elif [ "$cmd" == "link" ]; then
@@ -98,8 +96,6 @@ main () {
                             rtxt "($1) '$2' removed old $1"
                             $cmd "$1"/"$2" "$installDir"/"$2"
                             stxt "Linked '$2' ($1)"
-                        else
-                            stxt "($1) '$2' already linked"
                         fi
                     fi
                 fi
