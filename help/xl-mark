@@ -18,5 +18,6 @@ Option: One of the following:
         List bookmarks from a single category.
 
 Configuration:
-    Files in ~/.config/xlotus/bookmarks are categories for bookmarks.
-    Filename is the category name that lists bookmarks within using fzf.
+    - Files in ~/.config/xlotus/bookmarks are categories for bookmarks.
+    - Filename is the category name that lists bookmarks within using fzf.
+    - You must have a single file named default in ~/.config/xlotus/bookmarks .

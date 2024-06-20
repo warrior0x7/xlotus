@@ -42,18 +42,27 @@ case $1 in
         if [[ $bookmark =~ ^"http" ]]; then
             lists="$(ls ~/.config/xlotus/bookmarks/ | grep --color=never -n .)"
 
-            echo -e "\n$lists" | sed 's/:/ /g'
-            read -r -p "$(ctxt g "\nlist: ")" listChoice
+            if [ -n "$2" ]; then
+                argList="$(echo "$lists" | grep ":$2$")"
+                if [ -n "$argList" ]; then
+                    targetList="${argList/*:/}"
+                else
+                    read -r -p "$(echo -e "\n$lists" | sed 's/:/ /g'; ctxt g "\nlist: ")" listChoice
+                    targetList="$(echo "$lists" | grep "^$listChoice" | awk -F ':' '{print $2}')"
+                fi
+            else
+                read -r -p "$(echo -e "\n$lists" | sed 's/:/ /g'; ctxt g "\nlist: ")" listChoice
+                targetList="$(echo "$lists" | grep "^$listChoice" | awk -F ':' '{print $2}')"
+            fi
             
-            targetList="$(echo "$lists" | grep "^$listChoice" | awk -F ':' '{print $2}')"
 
 
             if grep -q "$bookmark$" "$BOOKMARKS/$targetList" ;then
                 bnotify warn "Already exists"
             else
                 ctxt r "\n====================================="
-                echo -e "\n$bookmark\n"
-                read -r -p "$(ctxt g "Name: ")" bookmarkName
+                
+                read -r -p "$(echo -e "\n$bookmark\n"; ctxt g "Name: ")" bookmarkName
                 if [ -n "$bookmarkName" ]; then
                     bnotify a "$targetList" "<b><u>Name:</u></b>\n<b>$bookmarkName</b>\n\n<b><u>URL:</u></b>\n<b>$bookmark</b>"
                     printf "%s;;;%s\n" "$bookmarkName" "$bookmark" >> "$BOOKMARKS/$targetList"
@@ -84,8 +93,9 @@ case $1 in
     -l|--list)
         if [ -f "$BOOKMARKS/$2" ]; then
             bindings=(
+                "alt-a:become($BIN/xl-mark --add \"$2\"; $BIN/xl-mark -l \"$2\"),"
                 "alt-e:become($BIN/xl-mark open \"{+}\"),"
-                "alt-a:become($BIN/xl-mark autotype \"{+}\"),"
+                "alt-t:become($BIN/xl-mark autotype \"{+}\"),"
                 "alt-r:become($BIN/xl-mark rename {} \"$2\"; $BIN/xl-mark -l \"$2\"),"
                 "alt-d:become($BIN/xl-mark delete \"{+}\" \"$2\"; $BIN/xl-mark -l \"$2\")"
             )
@@ -95,7 +105,7 @@ case $1 in
             choice="$(awk -F ';;;' '{ printf "%2s %-40s %s\n", " ", $1, $2}' "$BOOKMARKS/$2" |\
                 fzfcmd "" \
                     --multi \
-                    --header="Alt-a => Autotype | Alt-r => Rename | Alt-d => Delete | Alt-e => Browser" \
+                    --header="Alt-a => Add | Alt-t => Autotype | Alt-r => Rename | Alt-d => Delete | Alt-e => Browser" \
                     --bind="${fzfBind}" |\
                     sed 's/^.*\shttp/http/g')"
 
@@ -130,11 +140,15 @@ case $1 in
         ;;
 
     rename)
-        echo "$2" > ~/.log
         url="${2/*http/http}"
         previousName="$(grep --color=never ";;;${url}$" "$BOOKMARKS/$3" | awk -F ';;;' '{print $1}')"
 
-        read -r -e -i "$previousName" -p "$(clear; echo -e "\n$url\n"; ctxt g "Name: ")" rename
+        cat <<-EOF > $CACHE/rename.sh
+$previousName
+# $url
+EOF
+        $(getConfig editor) $CACHE/rename.sh >/dev/tty
+        rename="$(cat $CACHE/rename.sh | sed -n 1p)"
 
         if [ -n "$rename" ]; then
             printf "%s" "$url" |\
