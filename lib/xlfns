@@ -35,6 +35,7 @@ notifier () {
         normal) notify-send -i "$2" "$3" "\n<b><u>$4</u></b>\n\n${*:5}"  ;;
         invalid) notify-send -i "dialog-error" "$2" "\n<b><u>Invalid argument</u>: '$3'</b>\n\n${*:4}" ;;
         err) notify-send -i "dialog-error" "$2" "\n<b><u>$3</u></b>\n\n${*:4}"  ;;
+        warn) notify-send -i "dialog-warning-symbolic" "$2" "\n<b><u>$3</u></b>\n\n${*:4}";;
     esac
 }
 

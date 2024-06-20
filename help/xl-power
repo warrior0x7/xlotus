@@ -1,0 +1,27 @@
+Description: 
+    Execute power menu options.
+
+Usage: xl-power <Option>
+
+Option: One of the following:
+
+    -h , --help:
+        Print this help page.
+
+    -s , --suspend 
+        Lock screen then suspend.
+
+    -l , --lock:
+        Lock screen.
+
+    -o , --logout:
+        Log out.
+
+    -p , --poweroff:
+        Power off.
+
+    -r , --reboot:
+        Reboot.
+
+    -z , --sleep:
+        Suspend without screen locking.

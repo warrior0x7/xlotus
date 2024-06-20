@@ -50,8 +50,8 @@ case $1 in
         ;;
 
     -e|--edit)
-        files=("$(finder f | sed "$dirExclude" | fzfcmd "EDIT" --multi)")
-        [ -n "$files" ] && $EDITOR ${files[@]}
+        files=($(finder f | sed "$dirExclude" | fzfcmd "EDIT" --multi))
+        [ -n "$files" ] && $(getConfig editor) "${files[@]}"
         ;;
 
     -j|--jump)

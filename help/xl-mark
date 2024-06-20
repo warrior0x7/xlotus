@@ -1,0 +1,22 @@
+Description: 
+    Bookmarks manager with tabs using tmux.
+
+Usage: xl-mark <Option>
+
+Option: One of the following:
+
+    -h , --help:
+        Print this help page.
+
+    -a , --add:
+        Add a new bookmark.
+
+    -g , --get:
+        Open bookmarks menu.
+
+    -l , --list:
+        List bookmarks from a single category.
+
+Configuration:
+    Files in ~/.config/xlotus/bookmarks are categories for bookmarks.
+    Filename is the category name that lists bookmarks within using fzf.

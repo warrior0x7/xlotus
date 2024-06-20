@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+. "$HOME/.local/lib/xlotus/xlfns"
+
+HELP="$XLOTUS_HELP"
+
+printHelp () {
+    cat "$HELP/xl-power"
+    cat "$HELP/footer"
+}
+
+case $1 in
+    -h|--help) printHelp ;;
+    -s|--suspend) gtklock & sleep 2 && systemctl suspend ;;
+    -l|--lock) gtklock ;;
+    -o|--logout) riverctl exit ;;
+    -p|--poweroff) systemctl poweroff ;;
+    -r|--reboot) systemctl reboot ;;
+    -z|--sleep) systemctl suspend ;;
+    *)
+        if [ -n "$1" ]; then
+            ctxt r "Invalid argument '$1'\n"
+        else
+            ctxt r "Empty argument\n"
+        fi
+        printHelp
+        ;;
+esac

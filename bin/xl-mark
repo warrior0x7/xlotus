@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+
+. "$HOME/.local/lib/xlotus/xlfns"
+
+BIN="$XLOTUS_BIN"
+HELP="$XLOTUS_HELP"
+CACHE="$XLOTUS_CACHE/xl-mark"
+BOOKMARKS="$XLOTUS_CFG/bookmarks"
+
+chkmk "$CACHE"
+
+[ ! -f "$BOOKMARKS"/default ] && touch "$BOOKMARKS"/default
+
+printHelp () {
+    cat "$HELP/xl-mark"
+    cat "$HELP/footer"
+}
+
+bnotify () { 
+    case $1 in
+        # edit
+        e) notifier normal "edit" "Xl-mark" "$2" ;;
+        # add
+        a) notifier normal "bookmark-new" "Xl-mark (list $2)" "Added successfully" "$3" ;;
+        # error
+        err) notifier err "Xl-mark" "$2" ;;
+        # invalid
+        invalid) notifier invalid "Xl-mark" "$2" "$3" ;;
+        # warn
+        warn) notifier warn "Xl-mark" "$2" "$3" ;;
+        # default
+        *) notifier normal "bookmarks" "Xl-mark" "$2" "$3";;
+    esac
+}
+
+case $1 in
+    -h|--help) printHelp ;;
+    -a|--add)
+        # get url from clipboard
+        [ -n "$WAYLAND_DISPLAY" ] && bookmark="$(wl-paste)" || bookmark="$(xclip -out -selection c)"
+        
+        if [[ $bookmark =~ ^"http" ]]; then
+            lists="$(ls ~/.config/xlotus/bookmarks/ | grep --color=never -n .)"
+
+            echo -e "\n$lists" | sed 's/:/ /g'
+            read -r -p "$(ctxt g "\nlist: ")" listChoice
+            
+            targetList="$(echo "$lists" | grep "^$listChoice" | awk -F ':' '{print $2}')"
+
+
+            if grep -q "$bookmark$" "$BOOKMARKS/$targetList" ;then
+                bnotify warn "Already exists"
+            else
+                ctxt r "\n====================================="
+                echo -e "\n$bookmark\n"
+                read -r -p "$(ctxt g "Name: ")" bookmarkName
+                if [ -n "$bookmarkName" ]; then
+                    bnotify a "$targetList" "<b><u>Name:</u></b>\n<b>$bookmarkName</b>\n\n<b><u>URL:</u></b>\n<b>$bookmark</b>"
+                    printf "%s;;;%s\n" "$bookmarkName" "$bookmark" >> "$BOOKMARKS/$targetList"
+                else
+                    bnotify "Not saved because you didn't specify a name"
+                fi
+            fi
+        else
+            bnotify err "Text in your clipboard is not a valid url"
+        fi
+        ;;
+
+    -g|--get)
+            activeSession="$(tmux -L bookmarks list-sessions -F '#{session_name}' | grep bmarks)"
+            [ -n "$activeSession" ] && tmux -L bookmarks kill-session -t "bmarks"
+            tmux -L bookmarks -f ~/.config/xlotus/tmux.conf new-session -d -s "bmarks" -n default "$BIN/xl-mark -l default"
+            for list in "$BOOKMARKS"/*
+            do
+                listName="${list/*\//}"
+                if [ "$listName" != "default" ]; then
+                    tmux -L bookmarks new-window -n "$listName" -t "bmarks" "$BIN/xl-mark -l \"$listName\""
+                fi
+            done
+            tmux -L bookmarks select-window -t bmarks:1
+            tmux -L bookmarks attach-session -d -t "bmarks"
+        ;;
+
+    -l|--list)
+        if [ -f "$BOOKMARKS/$2" ]; then
+            bindings=(
+                "alt-e:become($BIN/xl-mark open \"{+}\"),"
+                "alt-a:become($BIN/xl-mark autotype \"{+}\"),"
+                "alt-r:become($BIN/xl-mark rename {} \"$2\"; $BIN/xl-mark -l \"$2\"),"
+                "alt-d:become($BIN/xl-mark delete \"{+}\" \"$2\"; $BIN/xl-mark -l \"$2\")"
+            )
+
+            for i in "${bindings[@]}";do fzfBind="${fzfBind}${i}"; done
+
+            choice="$(awk -F ';;;' '{ printf "%2s %-40s %s\n", " ", $1, $2}' "$BOOKMARKS/$2" |\
+                fzfcmd "" \
+                    --multi \
+                    --header="Alt-a => Autotype | Alt-r => Rename | Alt-d => Delete | Alt-e => Browser" \
+                    --bind="${fzfBind}" |\
+                    sed 's/^.*\shttp/http/g')"
+
+            if [ -n "$choice" ]; then
+                printf '%s' "$choice" | wl-copy
+            fi
+
+            activeSession="$(tmux -L bookmarks list-sessions -F '#{session_name}' | grep bmarks)"
+            [ -n "$activeSession" ] && tmux -L bookmarks kill-session -t "bmarks"
+        else
+            ctxt r "\nInvalid list '$2'\n"
+            ctxt g "Available lists:"
+            ls ~/.config/xlotus/bookmarks/ | grep --color=never -n . | sed 's/:/ /g'
+        fi
+        ;;
+
+    open) 
+        url="$(echo "$2" | sed "s/ '/\n/g" | sed "s/^.*\shttp/http/g; s/'$//g")"
+        nohup bash -c "printf '%s' \"$url\" | xargs -P 0 -I {} xdg-open {} &" 2&>/dev/null
+        ;;
+
+    delete)
+        printf "%s" "$2" |\
+            sed "s/ '/\n/g" |\
+            sed "s/^.*\shttp/http/g; s/'$//g" |\
+            xargs -n 1 -I {} sed -i "\|;;;{}$|d" "$BOOKMARKS/$3" 2&>/dev/null
+        ;;
+
+    autotype)
+        url="$(printf "%s" "$2" | sed "s/ '/\n/g" | sed "s/^.*\shttp/http/g; s/'$//g")"
+        nohup bash -c "printf '%s' \"$url\" | wtype -s 150 - &" 2&>/dev/null
+        ;;
+
+    rename)
+        echo "$2" > ~/.log
+        url="${2/*http/http}"
+        previousName="$(grep --color=never ";;;${url}$" "$BOOKMARKS/$3" | awk -F ';;;' '{print $1}')"
+
+        read -r -e -i "$previousName" -p "$(clear; echo -e "\n$url\n"; ctxt g "Name: ")" rename
+
+        if [ -n "$rename" ]; then
+            printf "%s" "$url" |\
+                xargs -I {} sed -i "s|^.*;;;{}$|$rename;;;{}|g" "$BOOKMARKS/$3" 2&>/dev/null
+        fi
+        ;;
+
+    *)
+        if [ -n "$1" ]; then
+            ctxt r "Invalid argument '$1'"
+        else
+            ctxt r "Empty argument"
+        fi
+        printHelp
+        ;;
+esac
