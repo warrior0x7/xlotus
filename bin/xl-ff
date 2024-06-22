@@ -17,24 +17,30 @@ case $1 in
         # get filter from config (also prevent duplicate entries)
         ffbegin=($(getConfig ff_begin | tr ' ' '\n' | awk '!x[$0]++' | tr '\n' ' '))
 
+        # Icons for filters
+        fficon=($(getConfig ff_icon))
+
         # make sed filter to reorder according to config
+        counter=0
         for i in "${ffbegin[@]}";
         do
             # check if profile from filter is available
             checkProfile=$(ls "$HOME/.mozilla/firefox/" | grep ".${i}$")
             # if only the profile exists
             if [ -n "$checkProfile" ]; then
-                sedDel+="/$i/d;"
-                sedAdd+=".$i\n"
+                sedDel="$sedDel/$i/d;"
+                sedAdd="$sedAdd.${fficon[$counter]}   $i\n"
+                counter=$((counter+1))
             fi
         done
 
         ffprofile=$(ls "$HOME/.mozilla/firefox/" |\
                 sed "/Pending Pings/d; /profiles.ini/d; /installs.ini/d; /Crash Reports/d; $sedDel" |\
                 sed "1 s/^/$sedAdd/" |\
-                awk -F '.' '{printf "%2s %s\n", "", $2}' |\
+                awk -F '.' '{print $2}' |\
+                awk '{if($2==""){printf "%1s %-3s %s\n","","",$1}else{printf "%1s %s\n","",$0}}' |\
                 fzfcmd "Firefox" |\
-                sed 's/[[:space:]]//g;')
+                sed 's/[^a-zA-Z\-]//g;')
 
         if [ -n "$ffprofile" ]; then
             nohup bash -c "$ffcmd --name \"firefox-$ffprofile\" -P $ffprofile &" 2&>/dev/null
