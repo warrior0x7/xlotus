@@ -58,4 +58,8 @@ case $1 in
         dir=$(finder d | sed -e "$dirExclude" | fzfcmd "CD")
         [ -n "$dir" ] && cd "$dir"
         ;;
+
+    *)
+        invalidArg "$1"
+        printHelp
 esac

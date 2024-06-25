@@ -184,7 +184,7 @@ case $1 in
         ;;
 
     *)
-        [ -n "$1" ] && ctxt r "Invalid argument '$1'\n" || ctxt r "Empty argument\n"
+        invalidArg "$1"
         printHelp
         ;;
 esac

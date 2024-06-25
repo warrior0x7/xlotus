@@ -18,11 +18,7 @@ case $1 in
     -r|--reboot) systemctl reboot ;;
     -z|--sleep) systemctl suspend ;;
     *)
-        if [ -n "$1" ]; then
-            ctxt r "Invalid argument '$1'\n"
-        else
-            ctxt r "Empty argument\n"
-        fi
+        invalidArg "$1"
         printHelp
         ;;
 esac

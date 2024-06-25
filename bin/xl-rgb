@@ -99,5 +99,8 @@ case $1 in
         ;;
 
     -h|--help) printHelp ;;
-    *) ctxt r "Invalid option: '$1'" ;;
+    *) 
+        invalidArg "$1"
+        printHelp
+        ;;
 esac
