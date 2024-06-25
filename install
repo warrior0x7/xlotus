@@ -15,6 +15,9 @@ XLOTUS_CACHE="$HOME/.cache/xlotus"
 # ----------------------------------------------
 #   FUNCTIONS
 # ----------------------------------------------
+# Help page
+printHelp () { cat "help/install" ;}
+
 # "Success" text (green)
 stxt () { echo -e "\033[0;32m[OK]\033[0m $1" ;}
 # "Error" text (red)
@@ -34,92 +37,41 @@ chkmk () {
 add () { cp -r "$@" ;}
 link () { ln -s "$(pwd)"/$@ ;}
 
-# Main function to run for each file
 main () {
-    # Command to run (copy or link)
-    cmd="$1"
-    shift
-    case "$1" in
-        lib|bin|cfg)
-            # Set directory of installation
-            case "$1" in
-                lib) installDir=$XLOTUS_LIB ;;
-                bin) 
-                    installDir=$XLOTUS_BIN 
-                    # add help page
-                    if [ ! -f "$XLOTUS_HELP"/"$2" ]; then 
-                        $cmd help/"$2" "$XLOTUS_HELP"/"$2"
-                    else
-                        rm  $XLOTUS_HELP/"$2"
-                        $cmd help/"$2" "$XLOTUS_HELP"/"$2"
-                    fi
-                    ;;
-                cfg) installDir=$XLOTUS_CFG ;;
-            esac
-
-            # Check if specified file exists in this repo
-            if [ ! -f "$1"/"$2" ] && [ ! -d "$1"/"$2" ]; then
-                etxt "'$1/$2' does not exist in this repo"
-                # Set has_err to 1 to indicate there's an error
-                # to prevent the success message
-                has_err=1
-            else
-                # if file does not exist in installDir
-                if [ ! -f "$installDir"/"$2" ] && [ ! -d "$installDir"/"$2" ]; then
-                    $cmd "$1"/"$2" "$installDir"/"$2"
-                    if [ "$cmd" == "add" ]; then
-                        stxt "Installed '$2' ($1)"
-                    elif [ "$cmd" == "link" ]; then
-                        stxt "Linked '$2' ($1)"
-                    fi
-                elif [ -f "$installDir"/"$2" ]; then
-                    # if file exists in installDir
-                    #
-                    # check filetype
-                    fileType=$(file -bi "$installDir"/"$2" | awk -F ';' '{print $1}')
-
-                    # if command is add
-                    if [ "$cmd" == "add" ]; then
-                        # if filetype is a symlink
-                        if [ "$fileType" == "inode/symlink" ]; then
-                            rm "$installDir/$2"
-                            rm "$XLOTUS_HELP"/"$2"
-                            rtxt "($1) '$2' removed old symlink"
-                            $cmd "$1"/"$2" "$installDir"/"$2"
-                            stxt "Installed '$2' ($1)"
-                        fi
-                    # if command is link
-                    elif [ "$cmd" == "link" ]; then
-                        # if filetype is not a symlink
-                        if [ "$fileType" != "inode/symlink" ]; then
-                            rm "$installDir/$2"
-                            rtxt "($1) '$2' removed old $1"
-                            $cmd "$1"/"$2" "$installDir"/"$2"
-                            stxt "Linked '$2' ($1)"
-                        fi
-                    fi
+    for i in "$2"/*
+    do
+        itemName="$(echo "$i" | awk -F '/' '{print $NF}')"
+        itemType="$(file -bi "$i" | awk -F ';' '{print $1}')"
+        itemDest="$3/$itemName"
+        if [ "$itemType" != "inode/directory" ]; then
+            if [ -f "$itemDest" ]; then
+                fileType=$(file -bi "$itemDest" | awk -F ';' '{print $1}')
+                if [ "$1" == "add" ] && [ "$fileType" == "inode/symlink" ]; then
+                    rm -rf "$itemDest"
+                    rtxt "Removed '$itemName' (link)"
+                    $1 "$i" "$3"
+                    stxt "Added '$itemName' ($2)"
+                elif [ "$1" == "link" ] && [ "$fileType" != "inode/symlink" ]; then
+                    rm -rf "$itemDest"
+                    rtxt "Removed '$itemName' ($2)"
+                    $1 "$i" "$3"
+                    stxt "Added '$itemName' (link)"
                 fi
+            else
+                $1 "$i" "$3"
+                stxt "Added '$itemName' ($2)"
             fi
-            ;;
-    esac
+        else
+            chkmk "$3/${i/*\//}"
+            main "$1" "$i" "$3/$itemName"
+        fi
+    done
 }
 
 # Message to print when installation is a success.
 success () {
-    if [ "$has_err" != "1" ]; then
-        echo -e "\n\033[0;32mInstallation was a success!\033[0m"
-        echo -e "\nDon't forget to add \033[0;32m\$HOME/.local/bin\033[0m to your PATH variable"
-    fi
-}
-
-# Generate help page footer
-footer () {
-    if [ ! -f "$XLOTUS_HELP"/footer ]; then 
-        $1 help/footer "$XLOTUS_HELP"/footer
-    else
-        rm  $XLOTUS_HELP/footer
-        $1 help/footer "$XLOTUS_HELP"/footer
-    fi
+    echo -e "\n\033[0;32mInstallation was a success!\033[0m"
+    echo -e "\nDon't forget to add \033[0;32m\$HOME/.local/bin\033[0m to your PATH variable"
 }
 # ----------------------------------------------
 
@@ -129,11 +81,11 @@ footer () {
 #   PRE-INSTALLATION SETUP
 # ----------------------------------------------
 # Setup directories
-chkmk $XLOTUS_CFG
-chkmk $XLOTUS_BIN
-chkmk $XLOTUS_LIB
-chkmk $XLOTUS_HELP
-chkmk $XLOTUS_CACHE
+chkmk "$XLOTUS_CFG"
+chkmk "$XLOTUS_BIN"
+chkmk "$XLOTUS_LIB"
+chkmk "$XLOTUS_HELP"
+chkmk "$XLOTUS_CACHE"
 
 # If no arguments provided, use --all
 if [ -z "$1" ]; then
@@ -149,42 +101,20 @@ fi
 # ----------------------------------------------
 #   PROCESS OPTIONS
 # ----------------------------------------------
-XLOTUS_ALL_BIN=($(ls bin/))
-XLOTUS_ALL_CFG=($(ls cfg/))
-XLOTUS_ALL_LIB=($(ls lib/))
-
 case $opt in
     -a|--all)
-        for cfg in ${XLOTUS_ALL_CFG[@]}; do
-            main add cfg "$cfg"
-        done
-
-        for lib in ${XLOTUS_ALL_LIB[@]}; do
-            main add lib "$lib"
-        done
-
-        for script in ${XLOTUS_ALL_BIN[@]}; do
-            main add bin "$script"
-        done
-
-        footer add
+        main add "bin" "$XLOTUS_BIN"
+        main add "cfg" "$XLOTUS_CFG"
+        main add "lib" "$XLOTUS_LIB"
+        main add "help" "$XLOTUS_HELP"
         success
         ;;
 
     -d|--dev)
-        for cfg in ${XLOTUS_ALL_CFG[@]}; do
-            main add cfg "$cfg"
-        done
-
-        for lib in ${XLOTUS_ALL_LIB[@]}; do
-            main link lib "$lib"
-        done
-
-        for script in ${XLOTUS_ALL_BIN[@]}; do
-            main link bin "$script"
-        done
-
-        footer link
+        main link "bin" "$XLOTUS_BIN"
+        main link "cfg" "$XLOTUS_CFG"
+        main link "lib" "$XLOTUS_LIB"
+        main link "help" "$XLOTUS_HELP"
         success
         ;;
 
@@ -201,7 +131,11 @@ case $opt in
         ;;
 
     *) 
-        etxt "Invalid argument: $1"
-        cat help/install
+        if [ -n "$1" ]; then
+            ctxt r "Invalid argument '$1'"
+        else
+            ctxt r "Empty argument"
+        fi
+        printHelp
         ;;
 esac
