@@ -11,13 +11,15 @@ chkmk () {
 XLOTUS_CFG="$HOME/.config/xlotus"
 XLOTUS_BIN="$HOME/.local/bin"
 XLOTUS_LIB="$HOME/.local/lib/xlotus"
-XLOTUS_CACHE="$HOME/.cache/xlotus"
 XLOTUS_HELP="$HOME/.local/share/xlotus/help"
+XLOTUS_THELP="$HOME/.local/share/xlotus/help/tmux"
+XLOTUS_CACHE="$HOME/.cache/xlotus"
 
 chkmk "$XLOTUS_CFG"
 chkmk "$XLOTUS_BIN"
 chkmk "$XLOTUS_LIB"
 chkmk "$XLOTUS_HELP"
+chkmk "$XLOTUS_THELP"
 chkmk "$XLOTUS_CACHE"
 
 # Fuzzy finder command.
@@ -165,4 +167,12 @@ checkNetwork () {
 getConfig () {
     grep --color=never "$1=" "$XLOTUS_CFG"/xlotus.cfg |\
         awk -F '=' '{gsub("\"","",$2); print $2}'
+}
+
+invalidArg () {
+    if [ -n "$1" ]; then
+        ctxt r "Invalid argument '$1'"
+    else
+        ctxt r "Empty argument"
+    fi
 }
