@@ -1,0 +1,15 @@
+Alt [1-9] ;;; Move to window [1-9]
+Alt 0 ;;; Move to last focused window
+Ctrl \ ;;; Move to next window
+Ctrl ] ;;; Move to previous window
+Tab ;;; Toggle selection
+Shift-Tab ;;; Reverse toggle selection
+
+Alt a ;;; Add bookmark to current
+Alt t ;;; Autotype Bookmark(s)
+Alt r ;;; Rename current bookmark
+Alt d ;;; Delete Bookmark(s)
+Alt e ;;; Open bookmark(s) in browser
+
+q ;;; Exit help
+
