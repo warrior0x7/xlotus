@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+XLOTUS_CFG="$HOME/.config/xlotus"
+XLOTUS_BIN="$HOME/.local/bin"
+XLOTUS_LIB="$HOME/.local/lib/xlotus"
+XLOTUS_HELP="$HOME/.local/share/xlotus/help"
+XLOTUS_CACHE="$HOME/.cache/xlotus"
+
+printHelp () {
+    cat "help/uninstall"
+}
+
+# "Removed" text (blue)
+rtxt () { echo -e "\033[0;34m[REM] $1\033[0m" ;}
+
+main () {
+    if [ -d "$1" ]; then
+        rm -rf "$1"
+        rtxt "Removed $1"
+    fi
+}
+
+case $1 in
+    -h|--help) printHelp ;;
+    *)
+        main "$XLOTUS_BIN"
+        main "$XLOTUS_CFG"
+        main "$XLOTUS_LIB"
+        main "$XLOTUS_HELP"
+        main "$XLOTUS_CACHE"
+        ;;
+esac
