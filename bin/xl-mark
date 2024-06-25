@@ -4,10 +4,12 @@
 
 BIN="$XLOTUS_BIN"
 HELP="$XLOTUS_HELP"
+THELP="$XLOTUS_THELP/xl-mark"
 CACHE="$XLOTUS_CACHE/xl-mark"
 BOOKMARKS="$XLOTUS_CFG/bookmarks"
 
 chkmk "$CACHE"
+chkmk "$BOOKMARKS"
 
 [ ! -f "$BOOKMARKS"/default ] && touch "$BOOKMARKS"/default
 
@@ -40,7 +42,7 @@ case $1 in
         [ -n "$WAYLAND_DISPLAY" ] && bookmark="$(wl-paste)" || bookmark="$(xclip -out -selection c)"
         
         if [[ $bookmark =~ ^"http" ]]; then
-            lists="$(ls ~/.config/xlotus/bookmarks/ | grep --color=never -n .)"
+            lists="$(ls $BOOKMARKS | grep --color=never -n .)"
 
             if [ -n "$2" ]; then
                 argList="$(echo "$lists" | grep ":$2$")"
@@ -60,9 +62,12 @@ case $1 in
             if grep -q "$bookmark$" "$BOOKMARKS/$targetList" ;then
                 bnotify warn "Already exists"
             else
-                ctxt r "\n====================================="
-                
-                read -r -p "$(echo -e "\n$bookmark\n"; ctxt g "Name: ")" bookmarkName
+                cat <<-EOF > $CACHE/add.sh
+
+# $bookmark
+EOF
+                $(getConfig editor) $CACHE/add.sh >/dev/tty
+                bookmarkName="$(cat $CACHE/add.sh | sed -n 1p)"
                 if [ -n "$bookmarkName" ]; then
                     bnotify a "$targetList" "<b><u>Name:</u></b>\n<b>$bookmarkName</b>\n\n<b><u>URL:</u></b>\n<b>$bookmark</b>"
                     printf "%s;;;%s\n" "$bookmarkName" "$bookmark" >> "$BOOKMARKS/$targetList"
@@ -87,6 +92,9 @@ case $1 in
                 fi
             done
             tmux -L bookmarks select-window -t bmarks:1
+            tmux -L bookmarks bind -n C-z display-popup -h 90% -w 80% -E "awk -F ';;;' '{printf \"%1s %-15s %s\n\", \"\", \$1,\$2}' $THELP | less -P \"\""
+            tmux -L bookmarks set -g status-right \
+                '#[bg=colour238,fg=white,italics] Help => Ctrl+z #[bg=black] #[bg=colour238] #S #[bg=black] '
             tmux -L bookmarks attach-session -d -t "bmarks"
         ;;
 
@@ -102,10 +110,9 @@ case $1 in
 
             for i in "${bindings[@]}";do fzfBind="${fzfBind}${i}"; done
 
-            choice="$(awk -F ';;;' '{ printf "%2s %-40s %s\n", " ", $1, $2}' "$BOOKMARKS/$2" |\
+            choice="$(awk -F ';;;' '{ printf "%1s %-40s %s\n", " ", $1, $2}' "$BOOKMARKS/$2" |\
                 fzfcmd "" \
                     --multi \
-                    --header="Alt-a => Add | Alt-t => Autotype | Alt-r => Rename | Alt-d => Delete | Alt-e => Browser" \
                     --bind="${fzfBind}" |\
                     sed 's/^.*\shttp/http/g')"
 
@@ -147,21 +154,18 @@ case $1 in
 $previousName
 # $url
 EOF
-        $(getConfig editor) $CACHE/rename.sh >/dev/tty
+        $(getConfig editor) "$CACHE/rename.sh" >/dev/tty
         rename="$(cat $CACHE/rename.sh | sed -n 1p)"
+        newUrl="$(cat $CACHE/rename.sh | sed -n 2p | sed "s/^# //g")"
 
         if [ -n "$rename" ]; then
             printf "%s" "$url" |\
-                xargs -I {} sed -i "s|^.*;;;{}$|$rename;;;{}|g" "$BOOKMARKS/$3" 2&>/dev/null
+                xargs -I {} sed -i "s|^.*;;;{}$|$rename;;;$newUrl|g" "$BOOKMARKS/$3" 2&>/dev/null
         fi
         ;;
 
     *)
-        if [ -n "$1" ]; then
-            ctxt r "Invalid argument '$1'"
-        else
-            ctxt r "Empty argument"
-        fi
+        invalidArg "$1"
         printHelp
         ;;
 esac
