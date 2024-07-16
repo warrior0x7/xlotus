@@ -23,7 +23,13 @@ main () {
 case $1 in
     -h|--help) printHelp ;;
     *)
-        main "$XLOTUS_BIN"
+        for file in "$XLOTUS_BIN"/* ; do
+            filename="$(echo $file | awk -F '/' '{print $NF}')"
+            if [[ $filename =~ ^"xl-" ]]; then
+                rm -rf "$file"
+                rtxt "Removed $file"
+            fi
+        done
         main "$XLOTUS_CFG"
         main "$XLOTUS_LIB"
         main "$XLOTUS_HELP"
