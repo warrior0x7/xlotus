@@ -1,0 +1,14 @@
+Description: 
+
+Usage: xl-make <Option>
+
+Option: One of the following:
+
+    -h , --help:
+        Print this help page.
+
+    -s , --script:
+        Create a bash script from a template.
+
+    -hd , --helpdoc:
+        Create a help document (like this page) from a template.

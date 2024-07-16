@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+. "$HOME/.local/lib/xlotus/xlfns"
+
+HELP="$XLOTUS_HELP"
+
+printHelp () {
+    cat "$HELP/xl-make"
+    cat "$HELP/footer"
+}
+
+helpfile () {
+cat <<-AEOF > $1
+Description: 
+
+Usage: $1 <Option>
+
+Option: One of the following:
+
+    -h , --help:
+        Print this help page.
+AEOF
+}
+
+scriptfile () {
+cat <<-AEOF > $1
+#!/usr/bin/env bash
+
+. "\$HOME/.local/lib/xlotus/xlfns"
+
+HELP="\$XLOTUS_HELP"
+
+printHelp () {
+    cat "\$HELP/$1"
+    cat "\$HELP/footer"
+}
+
+case \$1 in
+    -h|--help) printHelp ;;
+    *)
+        invalidArg "\$1"
+        printHelp
+        ;;
+esac
+AEOF
+}
+
+main () {
+    if [ ! -f "$2" ]; then
+        $1 $2
+    else
+        echo -e "File already exists\nI will open it in your EDITOR ($EDITOR)"
+    fi
+    nvim $2
+}
+
+case $1 in
+    -h|--help) printHelp ;;
+
+    -s|--script)
+        if [ -n "$2" ]; then
+            main scriptfile "$2"
+            chmod +x $2
+        else
+            ctxt r "[ERR] 2nd argument (filename) not provided"
+        fi
+        ;;
+
+    -hd|--helpdoc)
+        if [ -n "$2" ]; then
+            main helpfile "$2"
+        else
+            ctxt r "[ERR] 2nd argument (filename) not provided"
+        fi
+        ;;
+
+    *)
+        invalidArg "$1"
+        printHelp
+        ;;
+esac
