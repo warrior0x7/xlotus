@@ -4,18 +4,19 @@
 
 BIN="$XLOTUS_BIN"
 
-fterm () { konsole --notransparency -p tabtitle="Floating" -e "$@"; }
+float_konsole () { konsole --notransparency -p tabtitle="Floating" -e "$@"; }
+float_foot () { footclient --app-id="floating" -e "$@"; }
 
 case $1 in
-    run) fterm "$BIN"/xl-run ;; 
-    cmd) fterm "$BIN"/xl-cmd ;;
-    yt) fterm "$BIN"/xl-yt -v ;;
-    virt) fterm "$BIN"/xl-virt ;;
-    ff) fterm "$BIN"/xl-ff ;;
+    run) float_foot "$BIN"/xl-run ;; 
+    cmd) float_foot "$BIN"/xl-cmd ;;
+    yt) float_konsole "$BIN"/xl-yt -v ;;
+    virt) float_foot "$BIN"/xl-virt ;;
+    ff) float_foot "$BIN"/xl-ff ;;
     bmark)
         case $2 in
-            add) fterm "$BIN"/xl-mark -a ;;
-            *) fterm "$BIN"/xl-mark -g ;;
+            add) float_foot "$BIN"/xl-mark -a ;;
+            *) float_foot "$BIN"/xl-mark -g ;;
         esac
         ;;
     *)

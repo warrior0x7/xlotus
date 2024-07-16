@@ -1,5 +1,24 @@
 #!/usr/bin/env bash
 
+# Color text.
+ctxt () {
+    ctxtBeginSeq="\033["
+    ctxtResetSeq="\033[0m"
+
+    case $1 in
+          black)    ctxtColor=0 ;; # Black
+          r)        ctxtColor=1 ;; # Red
+          g)        ctxtColor=2 ;; # Green
+          y)        ctxtColor=3 ;; # Yellow
+          b)        ctxtColor=4 ;; # Blue
+          p)        ctxtColor=5 ;; # Purple
+          c)        ctxtColor=6 ;; # Cyan
+          w)        ctxtColor=7 ;; # White
+    esac
+
+    echo -e "${ctxtBeginSeq}0;3${ctxtColor}m${2}${ctxtResetSeq}"
+}
+
 # If directory does not exist, make it
 chkmk () { 
     if [ ! -d "$1" ]; then 
@@ -65,25 +84,6 @@ mpvcmd () {
             "mpv (yt-dlp) failed to run url" \
             "<b>Make sure it can be handled by yt-dlp</b>"
     fi
-}
-
-# Color text.
-ctxt () {
-    ctxtBeginSeq="\033["
-    ctxtResetSeq="\033[0m"
-
-    case $1 in
-          black)    ctxtColor=0 ;; # Black
-          r)        ctxtColor=1 ;; # Red
-          g)        ctxtColor=2 ;; # Green
-          y)        ctxtColor=3 ;; # Yellow
-          b)        ctxtColor=4 ;; # Blue
-          p)        ctxtColor=5 ;; # Purple
-          c)        ctxtColor=6 ;; # Cyan
-          w)        ctxtColor=7 ;; # White
-    esac
-
-    echo -e "${ctxtBeginSeq}0;3${ctxtColor}m${2}${ctxtResetSeq}"
 }
 
 # Check number type (int or float) and value (positive or negative).

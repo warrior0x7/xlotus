@@ -62,12 +62,12 @@ case $1 in
             if grep -q "$bookmark$" "$BOOKMARKS/$targetList" ;then
                 bnotify warn "Already exists"
             else
-                cat <<-EOF > $CACHE/add.sh
+                cat <<-EOF > $CACHE/add.md
 
 # $bookmark
 EOF
-                $(getConfig editor) $CACHE/add.sh >/dev/tty
-                bookmarkName="$(cat $CACHE/add.sh | sed -n 1p)"
+                $(getConfig editor) "$CACHE/add.md" >/dev/tty
+                bookmarkName="$(cat "$CACHE/add.md" | sed -n 1p)"
                 if [ -n "$bookmarkName" ]; then
                     bnotify a "$targetList" "<b><u>Name:</u></b>\n<b>$bookmarkName</b>\n\n<b><u>URL:</u></b>\n<b>$bookmark</b>"
                     printf "%s;;;%s\n" "$bookmarkName" "$bookmark" >> "$BOOKMARKS/$targetList"
@@ -110,9 +110,11 @@ EOF
 
             for i in "${bindings[@]}";do fzfBind="${fzfBind}${i}"; done
 
-            choice="$(awk -F ';;;' '{ printf "%1s %-40s %s\n", " ", $1, $2}' "$BOOKMARKS/$2" |\
+            choice="$(awk -F ';;;' '{ printf "%1s %-100s %s\n", " ", $1, $2}' "$BOOKMARKS/$2" |\
                 fzfcmd "" \
                     --multi \
+                    -d "   " \
+                    --with-nth 1 \
                     --bind="${fzfBind}" |\
                     sed 's/^.*\shttp/http/g')"
 
@@ -150,13 +152,13 @@ EOF
         url="${2/*http/http}"
         previousName="$(grep --color=never ";;;${url}$" "$BOOKMARKS/$3" | awk -F ';;;' '{print $1}')"
 
-        cat <<-EOF > $CACHE/rename.sh
+        cat <<-EOF > $CACHE/rename.md
 $previousName
 # $url
 EOF
-        $(getConfig editor) "$CACHE/rename.sh" >/dev/tty
-        rename="$(cat $CACHE/rename.sh | sed -n 1p)"
-        newUrl="$(cat $CACHE/rename.sh | sed -n 2p | sed "s/^# //g")"
+        $(getConfig editor) "$CACHE/rename.md" >/dev/tty
+        rename="$(cat "$CACHE/rename.md" | sed -n 1p)"
+        newUrl="$(cat "$CACHE/rename.md" | sed -n 2p | sed "s/^# //g")"
 
         if [ -n "$rename" ]; then
             printf "%s" "$url" |\
